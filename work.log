@@ -1,0 +1,140 @@
+# WORK LOG — Diario de acciones
+
+> Registro cronológico de TODO lo que se hace. La entrada más reciente, arriba.
+
+---
+
+## 2026-10-17 13:50 — Prueba real superada y primer commit
+
+Tipo: cambio
+
+Qué se hizo:
+El usuario inició sesión en la app conectada al proyecto Supabase real y guardó una valoración de prueba con foto sin incidencias (login, inserción con RLS, subida al bucket privado y URLs firmadas). Se realiza el primer commit del proyecto en la rama `main` para publicarlo en GitHub Pages.
+
+Archivos / recursos afectados:
+- Todo el proyecto (commit inicial)
+
+---
+
+## 2026-10-17 13:30 — Conexión al proyecto Supabase real
+
+Tipo: cambio | seguridad
+
+Qué se hizo:
+`js/config.js` con la Project URL (`https://owjxhdnmnhfoiokkzesz.supabase.co`) y la Publishable key del usuario (pública por diseño). Comprobado por API: tablas creadas y RLS activo (listas vacías sin sesión), registro público desactivado, bucket de fotos privado. En el navegador la app carga supabase-js 2.118.0 desde jsDelivr sin errores; se fija esa versión exacta. Pendiente: inicio de sesión del usuario con sus credenciales (no las manejo yo).
+
+Archivos / recursos afectados:
+- js/config.js, js/supabase.js, DOCUMENTACION-TECNICA.md, to-do.md
+
+---
+
+## 2026-10-17 13:05 — Soporte de claves "publishable" de Supabase
+
+Tipo: cambio | seguridad
+
+Qué se hizo:
+El panel de Supabase del usuario ya muestra las claves nuevas (`sb_publishable_...`) en lugar de la `anon` JWT. Se cambió la carga de supabase-js a `@2` (última 2.x) para garantizar soporte, se amplió la validación de `isConfigured` a ambos formatos de clave, el keep-alive envía solo la cabecera `apikey` y acepta 200/401/403, y se actualizaron README, documentación técnica, config.js y to-do.md.
+
+Archivos / recursos afectados:
+- js/supabase.js, js/config.js, .github/workflows/keepalive.yml, README.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+Verificación:
+Pendiente de probar con la clave real cuando el usuario la facilite.
+
+---
+
+## 2026-10-17 12:20 — Sitios pendientes de visitar y enlaces por restaurante
+
+Tipo: cambio | seguridad
+
+Qué se hizo:
+- Esquema: columnas `want_to_go`, `notes` y `links` (jsonb ≤10) en `restaurants`, con `alter table ... add column if not exists` para instalaciones previas, índice parcial de pendientes y trigger `reviews_mark_visited` que pasa el sitio a visitado al insertar su primera valoración.
+- `restaurant-fields.js`: bloque desplegable "Enlaces y notas" con editor de enlaces (etiqueta + URL, máx. 10) y notas; validación de URL. `dom.js`: `safeUrl`, `normalizeUrl` (añade https:// si falta; solo http/https), `linkHost`.
+- Nueva vista `wish.js` (ruta `#/wish`) para guardar un pendiente; enlace de acceso desde el formulario de valoración y desde la lista vacía de pendientes.
+- Lista: selector Visitados / Pendientes con contadores, tarjetas de pendiente (notas y nº de enlaces), filtros reducidos en pendientes.
+- Detalle: etiqueta "Pendiente de visitar", notas, botones de enlaces (noopener noreferrer, URL revalidada), botón "Ya hemos ido: valorar".
+- Edición de restaurante: casilla "Pendiente de visitar" (solo si no tiene valoraciones). Mapa: pin morado para pendientes. Resumen: tarjetas de pendientes y fotos.
+- `map.js`: `ResizeObserver` que llama a `invalidateSize()` si el contenedor cambia de tamaño (se observó un mapa mal dimensionado al cambiar el ancho del panel de pruebas).
+- CSS: `.link-row`, `.links`, `.badge-wish`, `.notes`, `.mode`, `.hint-row` y ajuste de la fila de enlaces en pantallas estrechas.
+
+Por qué:
+Petición del usuario tras la primera entrega: registrar restaurantes a los que quieren ir y guardar enlaces (dónde lo vieron, web del restaurante).
+
+Archivos / recursos afectados:
+- supabase/schema.sql, js/dom.js, js/map.js, js/app.js, sw.js, css/styles.css
+- js/ui/restaurant-fields.js, js/ui/wish.js (nuevo), js/ui/list.js, js/ui/detail.js, js/ui/form.js, js/ui/restaurant-form.js, js/ui/map-view.js, js/ui/stats.js
+- README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+Verificación:
+Pruebas en navegador (móvil emulado) con el mock actualizado: pestaña Pendientes con contadores, detalle de pendiente con notas y enlaces, alta de pendiente con URL sin esquema (normalizada a https://), valoración de un pendiente → pasa a Visitados (4 / 1). `js/supabase.js` real restaurado al terminar (sin rastro del mock).
+
+---
+
+## 2026-10-17 11:40 — Pruebas en navegador, correcciones y documentación
+
+Tipo: cambio | incidencia | documentación
+
+Qué se hizo:
+- Servidor estático local (python3 http.server) y pruebas en el navegador integrado con viewport móvil, usando un mock en memoria del cliente Supabase guardado en el scratchpad de la sesión (NO en el repo). El archivo real `js/supabase.js` se restauró al terminar (verificado: sin rastro del mock).
+- Probado: login, lista (orden/filtros/portadas), detalle con minimapa, alta de valoración con restaurante nuevo (geocodificación real con Nominatim y punto en el mapa), estrellas, platos, foto comprimida (PNG de 3,5 MB → JPEG 1600 px + miniatura), guardado, lightbox, edición de valoración, permisos entre dos usuarios, mapa general, resumen, ajustes y tema claro/oscuro.
+- Incidencia 1: tras guardar, se navegaba al detalle antes de recargar datos → "No encontrado". Corregido con `await ctx.reload()` antes de navegar (form.js, restaurant-form.js) y refresco automático del detalle "no encontrado" cuando llegan datos (detail.js + `ctx.reroute`).
+- Incidencia 2: los mapas Leaflet (z-index 400) se pintaban sobre la barra superior y la de pestañas. Corregido creando contexto de apilamiento (`position: relative; z-index: 0`) en `.minimap`, `.map-picker` y `.map-full`.
+- Ajustes menores: fila de ubicación con salto de línea; tamaño de cifra en tarjetas de estadísticas.
+- Documentación: README.md (puesta en marcha), GUIA-DE-USO.md (no técnica), DOCUMENTACION-TECNICA.md. to-do.md actualizado.
+- Observación: el registro del service worker falla en el navegador integrado de pruebas ("unknown error fetching the script"); es una limitación de ese entorno, no reproducible en Safari/Chrome. Se verificará en dispositivo real (pendiente en to-do.md).
+
+Archivos / recursos afectados:
+- js/ui/form.js, js/ui/restaurant-form.js, js/ui/detail.js, js/app.js, js/ui/restaurant-fields.js, css/styles.css
+- README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md, to-do.md, .claude/launch.json (ignorado por git)
+
+Verificación:
+Capturas en móvil emulado de todas las vistas en ambos temas; consola sin errores de JavaScript propios; `grep -c MOCK js/supabase.js` = 0.
+
+---
+
+## 2026-10-17 11:10 — Implementación completa de la app
+
+Tipo: cambio | seguridad | optimización
+
+Qué se hizo:
+- `supabase/schema.sql`: tablas profiles/restaurants/reviews con CHECK de longitudes y rangos, trigger de perfil al crear usuario, función `is_member()`, RLS denegar-por-defecto con políticas por tabla, publicación realtime, bucket privado `photos` con límite 3 MB y MIME permitidos, políticas de Storage. Se eliminó una vista de resumen inicial porque el resumen se calcula en cliente (recurso sin uso).
+- `.github/workflows/keepalive.yml`: ping cada 3 días con secretos del repo.
+- Frontend sin build: index.html con CSP, manifest, service worker (precaché + SWR para CDN), CSS con tokens claro/oscuro, módulos JS (dom con escape automático, theme, supabase, auth, db, image, map) y vistas (login, lista, detalle, formulario, campos de restaurante, edición de restaurante, mapa, resumen, ajustes).
+- Icono SVG propio renderizado a PNG 512/192/180 con qlmanage + sips.
+
+Por qué:
+Cumplir el alcance acordado (fotos, estrellas, platos, bebida, ubicación, compartido, iOS/Android, tema claro/oscuro) con seguridad por diseño y sin herramientas que instalar.
+
+Archivos / recursos afectados:
+- index.html, manifest.webmanifest, sw.js, css/styles.css, js/**, assets/icons/**, supabase/schema.sql, .github/workflows/keepalive.yml
+
+Verificación:
+Revisión de código y pruebas en navegador (ver entrada posterior).
+
+---
+
+## 2026-10-17 10:55 — Arranque del proyecto
+
+Tipo: decisión
+
+Qué se hizo:
+Plan de acción acordado con el usuario y creación de la estructura inicial, `to-do.md`, `work.log` y `.gitignore`. Repositorio Git inicializado en rama `main`.
+
+Decisiones tomadas:
+- Tipo de app: PWA en HTML/CSS/JS sin paso de compilación (el Mac del usuario no tiene Node ni Homebrew; se evita instalar herramientas).
+- Backend: Supabase (auth email+contraseña, Postgres con RLS, Storage para fotos, Realtime). Elegido frente a Cloudflare porque R2 exige tarjeta y Workers exigiría Node y una API propia.
+- Mitigación de la pausa por inactividad del plan gratuito: tarea programada de GitHub Actions que hace una petición cada 3 días.
+- Alojamiento: GitHub Pages (elección del usuario). Rutas relativas para funcionar bajo subcarpeta.
+- Cuentas: dos cuentas individuales, sin registro público. Se distingue el autor de cada valoración.
+- Mapas: Leaflet + OpenStreetMap + Nominatim (sin clave).
+- Temas: claro, oscuro y automático según el sistema.
+
+Por qué:
+Aplicar el principio "first time right": acordar objetivo, alcance, stack y riesgos antes de programar.
+
+Archivos / recursos afectados:
+- to-do.md, work.log, .gitignore
+- Estructura: css/, js/, js/ui/, js/vendor/, assets/icons/, supabase/, .github/workflows/
+
+Verificación:
+Revisión del entorno (git 2.50 y python3 disponibles; node/npm/brew ausentes).

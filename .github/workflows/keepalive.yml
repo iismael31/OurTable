@@ -1,0 +1,33 @@
+# Evita que el proyecto gratuito de Supabase se pause por inactividad:
+# hace una consulta mínima cada 3 días. Requiere dos secretos en el repo
+# (Settings → Secrets and variables → Actions): SUPABASE_URL y SUPABASE_ANON_KEY.
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "17 6 */3 * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Consulta mínima a la API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Faltan los secretos SUPABASE_URL / SUPABASE_ANON_KEY"; exit 1
+          fi
+          # La tabla tiene RLS: la respuesta será una lista vacía (200) o un 401 sin sesión;
+          # en ambos casos cuenta como actividad. Solo falla si el proyecto no responde.
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/restaurants?select=id&limit=1")
+          echo "HTTP $code"
+          case "$code" in 200|401|403) exit 0 ;; *) exit 1 ;; esac

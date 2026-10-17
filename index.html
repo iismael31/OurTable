@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.supabase.co https://unpkg.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net https://unpkg.com; font-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; worker-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Nuestros Restaurantes</title>
+  <meta name="description" content="Valoraciones de restaurantes compartidas en pareja: fotos, estrellas, platos, bebidas y ubicación.">
+  <meta name="theme-color" content="#f7f5f2">
+  <meta name="color-scheme" content="light dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Restaurantes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./css/styles.css">
+  <script src="./js/theme-init.js"></script>
+</head>
+<body>
+  <div id="app" class="app">
+    <header id="topbar" class="topbar"></header>
+    <main id="view" class="view" tabindex="-1"></main>
+    <nav id="tabbar" class="tabbar" aria-label="Navegación principal" hidden>
+      <a href="#/" data-tab="list" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span>Sitios</span>
+      </a>
+      <a href="#/map" data-tab="map" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.4-6-11a6 6 0 1 1 12 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>
+        <span>Mapa</span>
+      </a>
+      <a href="#/new" data-tab="new" class="tab tab-add" aria-label="Nueva valoración">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Añadir</span>
+      </a>
+      <a href="#/stats" data-tab="stats" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Resumen</span>
+      </a>
+      <a href="#/settings" data-tab="settings" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span>Ajustes</span>
+      </a>
+    </nav>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <dialog id="confirm" class="dialog">
+    <form method="dialog" class="dialog-body">
+      <h2 class="dialog-title"></h2>
+      <p class="dialog-message"></p>
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="btn btn-ghost dialog-cancel">Cancelar</button>
+        <button type="submit" value="ok" class="btn btn-primary dialog-ok">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="lightbox" class="lightbox" aria-label="Foto ampliada">
+    <button type="button" class="lightbox-close" aria-label="Cerrar">✕</button>
+    <img alt="">
+  </dialog>
+
+  <noscript><p class="noscript">Esta aplicación necesita JavaScript activado.</p></noscript>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

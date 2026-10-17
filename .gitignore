@@ -1,0 +1,14 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Secretos y entorno (nunca se suben)
+.env
+.env.*
+*.pem
+*.key
+
+# Temporales
+*.log.tmp
+node_modules/
+.claude/
