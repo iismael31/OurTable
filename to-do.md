@@ -9,9 +9,6 @@
 - [ ] 🟡 [seguridad] Configurar en Supabase la "Site URL" y "Redirect URLs" con `https://iismael31.github.io/OurTable/`.
       Justificación: necesario para que funcione el enlace de recuperación de contraseña.
 
-- [ ] 🟡 [funcionalidad] Añadir los secretos `SUPABASE_URL` y `SUPABASE_ANON_KEY` (clave publishable) al repositorio `iismael31/OurTable` para la tarea de "keep-alive" y lanzarla una vez a mano para comprobarla.
-      Justificación: la tarea programada evita que el proyecto gratuito se pause por inactividad.
-
 - [ ] 🟡 [seguridad] Vendorizar las librerías externas (supabase-js, Leaflet) dentro de `js/vendor/` en lugar de cargarlas desde CDN.
       Justificación: elimina la dependencia de terceros en tiempo de ejecución y permite una CSP más estricta. Requiere permiso para descargar los archivos.
 
@@ -21,9 +18,6 @@
 - [ ] 🟢 [funcionalidad] Exportación de copia de seguridad (JSON + fotos) desde Ajustes.
       Justificación: tener los datos propios fuera de Supabase por si algún día se migra.
 
-- [ ] 🟡 [funcionalidad] Probar la app de extremo a extremo contra el proyecto Supabase real y en un iPhone y un Android (instalación como PWA, subida de fotos HEIC, geolocalización).
-      Justificación: la verificación se hizo con un mock en memoria; el entorno real puede revelar diferencias (CORS, políticas, Safari).
-
 - [ ] 🟢 [seguridad] Revisar periódicamente las versiones fijadas de supabase-js (2.118.0) y Leaflet (1.9.4) y actualizarlas tras probar.
       Justificación: mantener parches de seguridad sin romper la app.
 
@@ -31,6 +25,9 @@
       Justificación: hoy se muestra solo la etiqueta; traer metadatos requeriría un proxy o función de servidor por CORS.
 
 ## Completados
+
+- [x] 2026-10-17 — Secretos del keep-alive configurados; primera ejecución correcta (GitHub Actions, 15:16 UTC).
+- [x] 2026-10-17 — App instalada y probada en los dos iPhones con el proyecto Supabase real.
 
 - [x] 2026-10-17 — Publicada en GitHub Pages: https://iismael31.github.io/OurTable/ (repositorio público iismael31/OurTable, rama main).
 

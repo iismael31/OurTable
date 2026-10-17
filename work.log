@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-10-17 18:00 — Cierre de la entrega 1.0.0
+
+Tipo: documentación | decisión
+
+Qué se hizo:
+El usuario confirma que OurTable está instalada en los dos iPhones y funciona con el proyecto Supabase real. Comprobado por la API pública de GitHub que el workflow "Supabase keep-alive" se ejecutó con éxito (secretos correctos). Documentación de cierre ya generada en esta misma fecha: GUIA-DE-USO.md (no técnica) y DOCUMENTACION-TECNICA.md. Pendientes y mejoras futuras en to-do.md.
+
+Estado final:
+- Web: https://iismael31.github.io/OurTable/ (GitHub Pages, repositorio público iismael31/OurTable, rama main)
+- Backend: proyecto Supabase owjxhdnmnhfoiokkzesz (plan gratuito), RLS activo, registro cerrado, 2 cuentas
+- Versión: 1.0.0
+
+Por qué:
+Hito entregable alcanzado; se deja el registro cerrado para futuras ampliaciones.
+
+---
+
 ## 2026-10-17 17:30 — Publicación en GitHub Pages
 
 Tipo: cambio
