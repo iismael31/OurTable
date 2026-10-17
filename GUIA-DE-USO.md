@@ -1,4 +1,4 @@
-# Guía de uso — Nuestros Restaurantes
+# Guía de uso — OurTable
 
 ## ¿Qué es esto y para qué sirve?
 Es vuestra libreta de restaurantes compartida. Cada vez que vais a un sitio, uno de los dos (o los dos) le pone estrellas, apunta los platos y la bebida, escribe su opinión y sube fotos. Lo que guarda uno le aparece al otro al momento, y tenéis un mapa con todos los sitios y un resumen con vuestros favoritos.
@@ -22,7 +22,7 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 
 ### Añadir una valoración
 1. Pulsa el botón redondo **+ Añadir** de la barra inferior.
-2. **Restaurante:** si ya existe, búscalo por nombre y tócalo. Si es nuevo, pulsa **Crear restaurante nuevo**, escribe el nombre y el tipo de cocina, y coloca la ubicación: escribe la dirección y pulsa **Buscar**, toca el mapa donde está, o pulsa **Usar mi ubicación** si estás allí.
+2. **Restaurante:** si ya existe, búscalo por nombre y tócalo. Si es nuevo, pulsa **Crear restaurante nuevo**, escribe el nombre y el tipo de cocina, y coloca la ubicación: escribe la dirección y pulsa **Buscar**, toca el mapa donde está, o, si estás en el restaurante, pulsa **Estoy aquí: usar mi ubicación actual** (el móvil te pedirá permiso de ubicación la primera vez).
 3. **Tu valoración:** fecha (por defecto hoy), estrellas generales (obligatorias) y, si quieres, estrellas de comida, servicio, ambiente y calidad-precio. Precio por persona y si volveríais.
 4. **Platos:** pulsa **+ Plato** por cada uno, escribe el nombre y puntúalo. Anota la **bebida**.
 5. **Opinión:** lo que os pareció, en tus palabras.

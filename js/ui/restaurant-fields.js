@@ -42,13 +42,13 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
         <button type="button" class="btn btn-sm" id="rf-geocode">Buscar</button>
       </div>
       <ul class="geo-results" id="rf-results" hidden></ul>
-      <p class="help">Busca la dirección, toca el mapa para colocar el punto o usa tu ubicación.</p>
+      <p class="help">Busca la dirección o toca el mapa para colocar el punto. Si estás en el restaurante, usa tu ubicación actual.</p>
     </div>
-    <div class="input-row" style="flex-wrap:wrap">
-      <button type="button" class="btn btn-sm" id="rf-locate" style="white-space:nowrap">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
-        Usar mi ubicación
-      </button>
+    <button type="button" class="btn btn-soft btn-block" id="rf-locate">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+      Estoy aquí: usar mi ubicación actual
+    </button>
+    <div class="input-row" style="justify-content:space-between;margin-top:8px">
       <span class="help" id="rf-coords"></span>
       <button type="button" class="btn btn-sm btn-ghost" id="rf-clear" hidden>Quitar punto</button>
     </div>
@@ -173,6 +173,8 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
   $('#rf-locate', container).addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.disabled = true;
+    const label = btn.innerHTML;
+    btn.textContent = 'Localizando...';
     try {
       const p = await getPosition();
       setPoint(p.lat, p.lng);
@@ -182,6 +184,7 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     } catch (err) {
       toast(err.message, 'error');
     } finally {
+      btn.innerHTML = label;
       btn.disabled = false;
     }
   });

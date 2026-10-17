@@ -1,4 +1,4 @@
-# Nuestros Restaurantes
+# OurTable
 
 Web app (PWA) para que una pareja guarde y comparta sus valoraciones de restaurantes: fotos, estrellas, platos, bebida, opinión, ubicación y enlaces (web, Instagram, TikTok...). Incluye una lista de sitios pendientes de visitar. Funciona en iPhone y Android desde el navegador y se puede instalar en la pantalla de inicio. Tema claro, oscuro y automático.
 

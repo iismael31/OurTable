@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-10-17 16:45 — Nombre OurTable, icono definitivo y botón de ubicación destacado
+
+Tipo: cambio
+
+Qué se hizo:
+- La app pasa a llamarse **OurTable** (título, manifest, nombre en pantalla de inicio iOS, login, cabecera de la lista, Ajustes, documentación).
+- Icono: recorte automático del diseño aportado por el usuario (detección del cuadrado rosa) y generación de `icon-192.png`, `icon-512.png` (esquinas transparentes), `icon-512-maskable.png` y `apple-touch-icon.png` (opacos sobre el rosa del icono, porque iOS pinta de negro la transparencia). Se elimina `icon.svg` (ya sin uso). Pillow se instaló solo en el Mac del usuario para el recorte; no es dependencia de la app.
+- Corrección: el `ResizeObserver` del mapa seguía llamando a `invalidateSize()` tras `map.remove()` (error `_leaflet_pos`); ahora se desconecta en el evento `unload` de Leaflet y comprueba que el mapa siga cargado.
+- Comprobado con la sesión real del usuario: RLS devuelve los dos perfiles y las tablas vacías.
+- "Usar mi ubicación" pasa a ser un botón ancho y destacado ("Estoy aquí: usar mi ubicación actual") con estado "Localizando...", a petición del usuario, que a veces valorará desde el propio restaurante.
+
+Archivos / recursos afectados:
+- index.html, manifest.webmanifest, sw.js, css/styles.css, js/ui/login.js, js/ui/list.js, js/ui/settings.js, js/ui/restaurant-fields.js, assets/icons/*, README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md
+
+---
+
 ## 2026-10-17 13:50 — Prueba real superada y primer commit
 
 Tipo: cambio

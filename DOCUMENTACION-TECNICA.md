@@ -1,4 +1,4 @@
-# Documentación técnica — Nuestros Restaurantes
+# Documentación técnica — OurTable
 
 ## 1. Visión general
 PWA para dos usuarios (pareja) que registran valoraciones de restaurantes con fotos, estrellas, platos, bebida, opinión y ubicación. Sin paso de compilación: HTML, CSS y módulos ES nativos servidos como estáticos (GitHub Pages). Backend como servicio: Supabase (Postgres + Auth + Storage + Realtime). Datos compartidos entre las dos cuentas con reglas de acceso en el servidor.
@@ -59,7 +59,7 @@ js/ui/restaurant-form.js Edición/borrado del restaurante
 js/ui/map-view.js        Mapa general con pines por nota
 js/ui/stats.js           Resumen estadístico
 js/ui/settings.js        Tema, perfil, contraseña, instalación, salir
-assets/icons/            Icono SVG y PNG (192, 512, apple-touch 180)
+assets/icons/            Icono PNG (192, 512, 512 maskable, apple-touch 180) a partir del diseño del usuario
 supabase/schema.sql      Esquema completo e idempotente (tablas, RLS, realtime, bucket)
 .github/workflows/keepalive.yml  Ping cada 3 días para evitar la pausa del plan gratuito
 to-do.md · work.log      Seguimiento del proyecto

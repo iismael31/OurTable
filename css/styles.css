@@ -1,5 +1,5 @@
 /* =====================================================================
-   Nuestros Restaurantes — estilos
+   OurTable — estilos
    Tokens de color en :root (claro) y [data-theme="dark"] (oscuro).
    ===================================================================== */
 
@@ -132,6 +132,7 @@ p { margin: 0; }
 .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ---------- Formularios ---------- */
+.btn-soft { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field > label, .label { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .01em; }
 .input, .textarea, .select {
@@ -315,7 +316,7 @@ html[data-theme="dark"] .leaflet-tile { filter: brightness(.7) contrast(1.05) sa
 /* ---------- Login ---------- */
 .auth { max-width: 380px; margin: 8vh auto 0; }
 .auth .brand { text-align: center; margin-bottom: 28px; }
-.auth .brand img { width: 84px; height: 84px; margin: 0 auto 14px; border-radius: 22px; box-shadow: var(--shadow); }
+.auth .brand img { width: 96px; height: 96px; margin: 0 auto 14px; border-radius: 24px; box-shadow: var(--shadow); }
 .auth .brand h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
 .auth .brand p { color: var(--muted); margin-top: 4px; }
 .auth .link-row { text-align: center; margin-top: 16px; font-size: 14px; }

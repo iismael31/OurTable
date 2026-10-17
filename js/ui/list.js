@@ -87,7 +87,7 @@ export async function loadThumbs(root) {
 }
 
 export function listView(ctx) {
-  ctx.setTopbar(html`<h1>Nuestros sitios</h1>`);
+  ctx.setTopbar(html`<h1>OurTable</h1>`);
   mount(ctx.main, html`
     <div class="segmented mode" id="mode"></div>
     <div class="search">

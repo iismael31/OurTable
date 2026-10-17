@@ -54,7 +54,7 @@ export function settingsView(ctx) {
 
     <div class="settings-group">
       <div class="settings-row"><div class="grow"><div>Sesión iniciada como</div><div class="sub">${ctx.email}</div></div><button type="button" class="btn btn-danger btn-sm" id="logout">Salir</button></div>
-      <div class="settings-row"><span class="sub">Nuestros Restaurantes · versión ${APP_VERSION}</span></div>
+      <div class="settings-row"><span class="sub">OurTable · versión ${APP_VERSION}</span></div>
     </div>
   `);
 

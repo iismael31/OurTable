@@ -6,8 +6,8 @@ export function loginView(ctx) {
   mount(ctx.main, html`
     <div class="auth">
       <div class="brand">
-        <img src="./assets/icons/icon.svg" alt="">
-        <h1>Nuestros Restaurantes</h1>
+        <img src="./assets/icons/icon-192.png" alt="">
+        <h1>OurTable</h1>
         <p>Vuestras valoraciones, en un solo sitio.</p>
       </div>
       <form id="login-form" class="form-section" novalidate>

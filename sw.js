@@ -1,4 +1,4 @@
-/* Service worker: cachea la "carcasa" de la app para que abra al instante
+/* Service worker de OurTable: cachea la "carcasa" de la app para que abra al instante
    y funcione sin red en lo que no depende de Supabase. */
 const VERSION = 'v1.0.0';
 const SHELL = `shell-${VERSION}`;
@@ -29,9 +29,9 @@ const PRECACHE = [
   './js/ui/map-view.js',
   './js/ui/stats.js',
   './js/ui/settings.js',
-  './assets/icons/icon.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/icons/icon-512-maskable.png',
   './assets/icons/apple-touch-icon.png',
 ];
 

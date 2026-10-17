@@ -40,9 +40,11 @@ export async function createMap(el, { center = DEFAULT_CENTER, zoom = 12, intera
   L.tileLayer(TILES, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(map);
   // Si el contenedor cambia de tamaño (giro del móvil, barra del navegador), recalcular.
   if ('ResizeObserver' in window) {
-    const ro = new ResizeObserver(() => map.invalidateSize());
+    const ro = new ResizeObserver(() => {
+      if (map._loaded && map._mapPane) map.invalidateSize();
+    });
     ro.observe(el);
-    map.on('remove', () => ro.disconnect());
+    map.on('unload', () => ro.disconnect()); // Leaflet emite 'unload' en map.remove()
   }
   return { L, map };
 }
