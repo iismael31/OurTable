@@ -6,10 +6,10 @@
 
 ## Pendientes
 
-- [ ] 🟡 [seguridad] Configurar en Supabase la "Site URL" y "Redirect URLs" con la dirección final de GitHub Pages.
+- [ ] 🟡 [seguridad] Configurar en Supabase la "Site URL" y "Redirect URLs" con `https://iismael31.github.io/OurTable/`.
       Justificación: necesario para que funcione el enlace de recuperación de contraseña.
 
-- [ ] 🟡 [funcionalidad] Añadir el secreto `SUPABASE_URL` y `SUPABASE_ANON_KEY` al repositorio de GitHub para la tarea de "keep-alive".
+- [ ] 🟡 [funcionalidad] Añadir los secretos `SUPABASE_URL` y `SUPABASE_ANON_KEY` (clave publishable) al repositorio `iismael31/OurTable` para la tarea de "keep-alive" y lanzarla una vez a mano para comprobarla.
       Justificación: la tarea programada evita que el proyecto gratuito se pause por inactividad.
 
 - [ ] 🟡 [seguridad] Vendorizar las librerías externas (supabase-js, Leaflet) dentro de `js/vendor/` en lugar de cargarlas desde CDN.
@@ -31,6 +31,8 @@
       Justificación: hoy se muestra solo la etiqueta; traer metadatos requeriría un proxy o función de servidor por CORS.
 
 ## Completados
+
+- [x] 2026-10-17 — Publicada en GitHub Pages: https://iismael31.github.io/OurTable/ (repositorio público iismael31/OurTable, rama main).
 
 - [x] 2026-10-17 — Proyecto Supabase creado: esquema ejecutado, registro público desactivado, cuentas creadas, claves en `js/config.js`. Prueba real de login y valoración con foto correcta.
 

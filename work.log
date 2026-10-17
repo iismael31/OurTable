@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-10-17 17:30 — Publicación en GitHub Pages
+
+Tipo: cambio
+
+Qué se hizo:
+El usuario publicó el repositorio desde GitHub Desktop como `iismael31/OurTable` (público) y activó Pages con "Deploy from a branch" (main, raíz). La carpeta local pasó a llamarse `App_OurTable`. Comprobado: https://iismael31.github.io/OurTable/ responde 200, sirve el `config.js` con la URL de Supabase y el manifest con el nombre OurTable.
+
+Pendiente del usuario: Site URL / Redirect URLs en Supabase, secretos del keep-alive en GitHub, instalación en los móviles.
+
+Archivos / recursos afectados:
+- to-do.md, work.log
+
+---
+
 ## 2026-10-17 16:45 — Nombre OurTable, icono definitivo y botón de ubicación destacado
 
 Tipo: cambio
