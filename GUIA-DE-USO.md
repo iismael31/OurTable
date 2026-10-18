@@ -22,7 +22,7 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 
 ### Añadir una valoración
 1. Pulsa el botón redondo **+ Añadir** de la barra inferior.
-2. **Restaurante:** si ya existe, búscalo por nombre y tócalo. Si es nuevo, pulsa **Crear restaurante nuevo** y escribe el nombre. Para la ubicación tienes tres formas: pulsa **Buscar** y la app encontrará el restaurante en Google Maps por su nombre (rellena sola la dirección y el punto); toca el icono del restaurante directamente en el mapa; o, si estás allí, pulsa **Estoy aquí: usar mi ubicación actual** (el móvil te pedirá permiso de ubicación la primera vez).
+2. **Restaurante:** si ya existe, búscalo por nombre y tócalo. Si es nuevo, pulsa **Crear restaurante nuevo**, escribe el nombre y el tipo de cocina, y coloca la ubicación: escribe la dirección y pulsa **Buscar**, toca el mapa donde está, o, si estás en el restaurante, pulsa **Estoy aquí: usar mi ubicación actual** (el móvil te pedirá permiso de ubicación la primera vez).
 3. **Tu valoración:** fecha (por defecto hoy), estrellas generales (obligatorias) y, si quieres, estrellas de comida, servicio, ambiente y calidad-precio. Precio por persona y si volveríais.
 4. **Platos:** pulsa **+ Plato** por cada uno, escribe el nombre y puntúalo. Anota la **bebida**.
 5. **Opinión:** lo que os pareció, en tus palabras.
@@ -49,7 +49,7 @@ En la valoración aparecen el lápiz (editar) y la papelera (borrar) solo si la 
 En **Sitios**, elige arriba entre **Visitados** y **📌 Pendientes**, escribe en el buscador (nombre, cocina o dirección) y usa los botones **Recientes**, **Mejor valorados**, **Más visitados**, **A–Z** o **💚 Volveríamos**.
 
 ### Mapa
-La pestaña **Mapa** es Google Maps y muestra todos los sitios con ubicación: verde (4 estrellas o más), naranja (3 a 4), rojo (menos de 3), gris (sin valorar) y morado (pendiente de visitar). Toca un punto para ver el nombre y entrar. El botón de la esquina centra el mapa en tu posición.
+La pestaña **Mapa** muestra todos los sitios con ubicación: verde (4 estrellas o más), naranja (3 a 4), rojo (menos de 3), gris (sin valorar) y morado (pendiente de visitar). Toca un punto para ver el nombre y entrar. El botón de la esquina centra el mapa en tu posición.
 
 ### Resumen
 La pestaña **Resumen** muestra cuántos sitios y valoraciones lleváis, la nota y el precio medios, el porcentaje de sitios a los que volveríais, el top 5, los que más repetís, los tipos de cocina y quién valora más.

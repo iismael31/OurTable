@@ -6,14 +6,15 @@
 
 ## Pendientes
 
+- [ ] 🔴 [funcionalidad] Reactivar Google Maps cuando Google Cloud restablezca el proyecto `OurTable`: revertir el commit de vuelta a OpenStreetMap, comprobar clave y cuotas, subir versión.
+      Justificación: el usuario prefiere Google Maps y la búsqueda de restaurantes por nombre; la implementación ya existe en el historial (3d409e6).
+
+
 - [ ] 🟡 [seguridad] Configurar en Supabase la "Site URL" y "Redirect URLs" con `https://iismael31.github.io/OurTable/`.
       Justificación: necesario para que funcione el enlace de recuperación de contraseña.
 
-- [ ] 🟡 [seguridad] Vendorizar supabase-js dentro de `js/vendor/` en lugar de cargarlo desde CDN (Google Maps debe cargarse desde Google).
-      Justificación: elimina una dependencia de terceros en tiempo de ejecución. Requiere permiso para descargar el archivo.
-
-- [ ] 🟡 [seguridad] Revisar cada pocos meses en Google Cloud el uso de la clave de Maps y que las cuotas diarias sigan activas.
-      Justificación: las cuotas son la garantía de que nunca haya cargos.
+- [ ] 🟡 [seguridad] Vendorizar las librerías externas (supabase-js, Leaflet) dentro de `js/vendor/` en lugar de cargarlas desde CDN.
+      Justificación: elimina la dependencia de terceros en tiempo de ejecución y permite una CSP más estricta. Requiere permiso para descargar los archivos.
 
 - [ ] 🟢 [limpieza] Limpiar fotos huérfanas del bucket cuando se borra un restaurante con valoraciones de la otra persona.
       Justificación: la app borra las fotos de la propia valoración, pero el borrado en cascada desde la base de datos no toca el almacenamiento.
@@ -21,15 +22,13 @@
 - [ ] 🟢 [funcionalidad] Exportación de copia de seguridad (JSON + fotos) desde Ajustes.
       Justificación: tener los datos propios fuera de Supabase por si algún día se migra.
 
-- [ ] 🟢 [seguridad] Revisar periódicamente la versión fijada de supabase-js (2.118.0) y actualizarla tras probar.
+- [ ] 🟢 [seguridad] Revisar periódicamente las versiones fijadas de supabase-js (2.118.0) y Leaflet (1.9.4) y actualizarlas tras probar.
       Justificación: mantener parches de seguridad sin romper la app.
 
 - [ ] 🟢 [funcionalidad] Previsualización de enlaces (favicon o miniatura) en la ficha del restaurante.
       Justificación: hoy se muestra solo la etiqueta; traer metadatos requeriría un proxy o función de servidor por CORS.
 
 ## Completados
-
-- [x] 2026-10-18 — Google Cloud: cuenta activada, clave restringida por dominio y API, cuotas diarias (300/100/100/100) y presupuesto de alerta de 1 € configurados por el usuario.
 
 - [x] 2026-10-17 — Secretos del keep-alive configurados; primera ejecución correcta (GitHub Actions, 15:16 UTC).
 - [x] 2026-10-17 — App instalada y probada en los dos iPhones con el proyecto Supabase real.

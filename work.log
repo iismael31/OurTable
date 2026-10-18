@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-10-18 13:30 — Vuelta temporal a OpenStreetMap (v1.1.2)
+
+Tipo: incidencia | cambio
+
+Qué se hizo:
+Google Cloud suspendió el proyecto `OurTable` (id unique-terminus-512006-s8) con un aviso genérico de "infracciones de las Condiciones del servicio" minutos después de activar la cuenta completa; causa más probable: verificación de cobro fallida en una tarjeta sin saldo (el uso real fue de decenas de peticiones). Los mapas devolvían `ProjectDeniedMapError` en todos los dispositivos. Para que la app siga operativa se revierte el commit 3d409e6 (Google Maps) manteniendo la mejora de actualizaciones de 1.1.1: vuelven Leaflet + OpenStreetMap + Nominatim, la CSP anterior y el botón de ubicación. Versión 1.1.2. La implementación de Google Maps queda íntegra en el historial (commits 3d409e6 y 121bc3a; la clave estaba en `js/config.js` de esos commits) para reactivarla cuando Google restablezca el proyecto.
+
+Además, la precaché del service worker pide los archivos con `cache: 'reload'` para no rellenarse con copias antiguas de la caché HTTP (GitHub Pages sirve con max-age de 10 minutos).
+
+Pendiente del usuario: medio de pago válido y apelación de la suspensión en Google Cloud.
+
+Verificación:
+Prueba en navegador local: mapa Leaflet con 16 teselas cargadas, marcador y búsqueda Nominatim de "Casa Lucio Madrid" correcta; sin errores propios en consola.
+
+Archivos / recursos afectados:
+- index.html, sw.js, css/styles.css, js/config.js, js/map.js, js/ui/restaurant-fields.js, js/ui/map-view.js, js/ui/detail.js, README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+---
+
 ## 2026-10-18 12:40 — Actualizaciones sin mezcla de versiones (v1.1.1)
 
 Tipo: incidencia | cambio

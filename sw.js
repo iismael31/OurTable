@@ -1,6 +1,6 @@
 /* Service worker de OurTable: cachea la "carcasa" de la app para que abra al instante
    y funcione sin red en lo que no depende de Supabase. */
-const VERSION = 'v1.1.1';
+const VERSION = 'v1.1.2';
 const SHELL = `shell-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -35,10 +35,11 @@ const PRECACHE = [
   './assets/icons/apple-touch-icon.png',
 ];
 
-const CDN_HOSTS = new Set(['cdn.jsdelivr.net']);
+const CDN_HOSTS = new Set(['cdn.jsdelivr.net', 'unpkg.com']);
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  // cache: 'reload' evita que la precaché se rellene con copias antiguas de la caché HTTP del navegador.
+  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -61,24 +62,32 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || (await network) || Response.error();
 }
 
+async function networkFirst(request) {
+  const cache = await caches.open(SHELL);
+  try {
+    const res = await fetch(request);
+    if (res && res.ok) cache.put('./index.html', res.clone());
+    return res;
+  } catch {
+    return (await cache.match('./index.html')) || Response.error();
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
 
   if (url.origin === self.location.origin) {
-    // Todo desde la caché de la versión instalada (también la página), para no
-    // mezclar un index.html nuevo con módulos antiguos. La versión nueva se
-    // instala en segundo plano y la app se recarga cuando toma el control.
-    event.respondWith(
-      request.mode === 'navigate'
-        ? staleWhileRevalidate(new Request('./index.html'), SHELL).then((res) => (res && res.ok ? res : fetch(request)))
-        : staleWhileRevalidate(request, SHELL)
-    );
+    if (request.mode === 'navigate') {
+      event.respondWith(networkFirst(request));
+    } else {
+      event.respondWith(staleWhileRevalidate(request, SHELL));
+    }
     return;
   }
   if (CDN_HOSTS.has(url.hostname)) {
     event.respondWith(staleWhileRevalidate(request, RUNTIME));
   }
-  // Supabase y Google Maps: siempre red, sin cachear.
+  // Supabase, mapas y geocodificación: siempre red, sin cachear.
 });
