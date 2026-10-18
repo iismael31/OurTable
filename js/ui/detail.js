@@ -89,10 +89,10 @@ export async function detailView(ctx, [id]) {
     <div id="reviews"><div class="skeleton"></div></div>
   `);
 
-  let map = null;
+  let mapHandle = null;
   if (hasPoint) {
-    createMap($('#minimap', ctx.main), { center: [r.lat, r.lng], zoom: 15, interactive: false })
-      .then((m) => { map = m.map; pin(m.L, [r.lat, r.lng], { radius: 10 }).addTo(map); })
+    createMap($('#minimap', ctx.main), { center: { lat: r.lat, lng: r.lng }, zoom: 15, interactive: false })
+      .then((m) => { mapHandle = m; pin(m.gm, m.map, { lat: r.lat, lng: r.lng }, { radius: 10 }); })
       .catch(() => { $('#minimap', ctx.main)?.remove(); });
   }
 
@@ -155,6 +155,6 @@ export async function detailView(ctx, [id]) {
 
   return {
     refresh: () => { if (ctx.state.restaurants.some((x) => x.id === id)) render(); else ctx.navigate('#/'); },
-    destroy: () => { map?.remove(); },
+    destroy: () => { mapHandle?.destroy(); },
   };
 }

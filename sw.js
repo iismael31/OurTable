@@ -1,6 +1,6 @@
 /* Service worker de OurTable: cachea la "carcasa" de la app para que abra al instante
    y funcione sin red en lo que no depende de Supabase. */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.1.0';
 const SHELL = `shell-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -35,7 +35,7 @@ const PRECACHE = [
   './assets/icons/apple-touch-icon.png',
 ];
 
-const CDN_HOSTS = new Set(['cdn.jsdelivr.net', 'unpkg.com']);
+const CDN_HOSTS = new Set(['cdn.jsdelivr.net']);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -88,5 +88,5 @@ self.addEventListener('fetch', (event) => {
   if (CDN_HOSTS.has(url.hostname)) {
     event.respondWith(staleWhileRevalidate(request, RUNTIME));
   }
-  // Supabase, mapas y geocodificación: siempre red, sin cachear.
+  // Supabase y Google Maps: siempre red, sin cachear.
 });

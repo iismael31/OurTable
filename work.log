@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-10-18 10:30 — Cambio de mapas a Google Maps Platform (v1.1.0)
+
+Tipo: cambio | decisión | seguridad
+
+Qué se hizo:
+- Decisión del usuario: pasar de OpenStreetMap/Leaflet a Google Maps (tiene tarjeta; se exige uso 100 % gratuito → clave restringida + cuotas diarias que impiden superar los 10.000 usos/mes gratuitos por API).
+- `js/map.js` reescrito: carga perezosa del script de Google (`v=weekly`, idioma es), estilo nocturno sincronizado con el tema de la app (MutationObserver sobre `data-theme`), marcadores circulares (`google.maps.Marker` con símbolo; se evita AdvancedMarker para no necesitar Map ID), `fitPoints`, búsqueda de sitios por nombre/dirección con Places Text Search (campos Pro: nombre, dirección, ubicación), `placeById` al tocar un icono de negocio en el mapa, geocodificación inversa con Geocoder. Se eliminan Nominatim y Leaflet (SRI, CSS específico, host unpkg del service worker).
+- `restaurant-fields.js` reescrito sobre la nueva API: al elegir un resultado o tocar un negocio en el mapa se rellenan nombre y dirección si están vacíos. `map-view.js` con InfoWindow temático; `detail.js` minimapa sin gestos.
+- CSP ampliada a maps.googleapis.com, maps.gstatic.com, places.googleapis.com, fonts.googleapis.com/gstatic y hosts de imágenes de Google; retirados unpkg, tile.openstreetmap.org y nominatim.
+- `GOOGLE_MAPS_API_KEY` en `js/config.js` (vacía hasta que el usuario cree la clave). Versión 1.1.0 (`APP_VERSION` y `VERSION` del service worker).
+- Documentación actualizada (README con pasos de Google Cloud, cuotas y restricciones; técnica; guía de uso; to-do).
+
+Verificación:
+Con la clave del usuario (restringida a https://iismael31.github.io/* y http://127.0.0.1:8765/*, limitada a Maps JavaScript API, Places API (New) y Geocoding API; cuenta de facturación activada con cuotas diarias 300/100/100/100 y presupuesto de alerta de 1 €): mapa creado con 26 teselas cargadas, cambio claro/oscuro en caliente, marcadores de color, `searchPlaces('Casa Lucio')` devuelve nombre, dirección y coordenadas, `reverseGeocode` devuelve "Calle de la Cava Alta 23, Madrid". Sin violaciones de CSP ni errores de consola propios. Pendiente de prueba de usuario en móvil tras publicar.
+
+---
+
 ## 2026-10-17 18:00 — Cierre de la entrega 1.0.0
 
 Tipo: documentación | decisión

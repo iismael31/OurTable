@@ -1,7 +1,7 @@
-// Campos de un restaurante (nombre, cocina, dirección y ubicación en mapa).
-// Lo usan tanto el formulario de valoración como la edición del restaurante.
+// Campos de un restaurante (nombre, cocina, dirección, ubicación en mapa, enlaces y notas).
+// Lo usan el formulario de valoración, el de sitio pendiente y la edición del restaurante.
 import { $, $$, html, mount, raw, toast, friendlyError, normalizeUrl, linkHost } from '../dom.js';
-import { createMap, pin, geocode, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
+import { createMap, pin, searchPlaces, placeById, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
 
 export const CUISINES = [
   'Española', 'Tapas', 'Asador', 'Marisquería', 'Arrocería', 'Mediterránea', 'Italiana', 'Pizzería',
@@ -21,9 +21,10 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     lng: initial.lng ?? null,
     notes: initial.notes ?? '',
   };
+  let gm = null;
   let map = null;
   let marker = null;
-  let L = null;
+  let mapHandle = null;
 
   mount(container, html`
     <div class="field">
@@ -42,7 +43,7 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
         <button type="button" class="btn btn-sm" id="rf-geocode">Buscar</button>
       </div>
       <ul class="geo-results" id="rf-results" hidden></ul>
-      <p class="help">Busca la dirección o toca el mapa para colocar el punto. Si estás en el restaurante, usa tu ubicación actual.</p>
+      <p class="help">Busca por nombre del restaurante o dirección, o toca su icono en el mapa. Si estás en el restaurante, usa tu ubicación actual.</p>
     </div>
     <button type="button" class="btn btn-soft btn-block" id="rf-locate">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
@@ -67,6 +68,15 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
       </div>
     </details>
   `);
+
+  const nameEl = $('#rf-name', container);
+  const cuisineEl = $('#rf-cuisine', container);
+  const addressEl = $('#rf-address', container);
+  const results = $('#rf-results', container);
+  const coordsEl = $('#rf-coords', container);
+  const clearBtn = $('#rf-clear', container);
+
+  const hasPoint = () => v.lat != null && v.lng != null;
 
   // ----- Enlaces -----
   const linksBox = $('#rf-links', container);
@@ -98,24 +108,16 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
   });
   renderLinks();
 
-  const nameEl = $('#rf-name', container);
-  const cuisineEl = $('#rf-cuisine', container);
-  const addressEl = $('#rf-address', container);
-  const results = $('#rf-results', container);
-  const coordsEl = $('#rf-coords', container);
-  const clearBtn = $('#rf-clear', container);
-
-  const hasPoint = () => v.lat != null && v.lng != null;
-
+  // ----- Ubicación -----
   function paintPoint() {
     coordsEl.textContent = hasPoint() ? `${v.lat.toFixed(5)}, ${v.lng.toFixed(5)}` : 'Sin ubicación';
     clearBtn.hidden = !hasPoint();
     if (!map) return;
     if (hasPoint()) {
-      if (!marker) marker = pin(L, [v.lat, v.lng], { radius: 10 }).addTo(map);
-      else marker.setLatLng([v.lat, v.lng]);
+      if (!marker) marker = pin(gm, map, { lat: v.lat, lng: v.lng }, { radius: 10 });
+      else marker.setPosition({ lat: v.lat, lng: v.lng });
     } else if (marker) {
-      marker.remove();
+      marker.setMap(null);
       marker = null;
     }
   }
@@ -124,44 +126,60 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     v.lat = lat;
     v.lng = lng;
     paintPoint();
-    if (map && pan) map.setView([lat, lng], Math.max(map.getZoom(), 16));
+    if (map && pan) {
+      map.panTo({ lat, lng });
+      if (map.getZoom() < 16) map.setZoom(16);
+    }
+  }
+
+  async function fillFromPlace(place) {
+    if (place.lat == null) return;
+    setPoint(place.lat, place.lng);
+    if (place.short && !addressEl.value.trim()) addressEl.value = place.short.slice(0, 240);
+    if (place.name && !nameEl.value.trim()) nameEl.value = place.name.slice(0, 120);
   }
 
   createMap($('#rf-map', container), {
-    center: hasPoint() ? [v.lat, v.lng] : DEFAULT_CENTER,
+    center: hasPoint() ? { lat: v.lat, lng: v.lng } : DEFAULT_CENTER,
     zoom: hasPoint() ? 16 : 5,
   }).then((m) => {
-    L = m.L;
+    gm = m.gm;
     map = m.map;
+    mapHandle = m;
     paintPoint();
-    map.on('click', async (e) => {
-      setPoint(e.latlng.lat, e.latlng.lng, { pan: false });
+    map.addListener('click', async (e) => {
+      if (e.placeId) {
+        // Icono de un negocio en el mapa: coger nombre y dirección de Google
+        e.stop();
+        try { await fillFromPlace(await placeById(e.placeId)); } catch { setPoint(e.latLng.lat(), e.latLng.lng(), { pan: false }); }
+        return;
+      }
+      setPoint(e.latLng.lat(), e.latLng.lng(), { pan: false });
       if (!addressEl.value.trim()) {
-        try { addressEl.value = (await reverseGeocode(e.latlng.lat, e.latlng.lng)).slice(0, 240); } catch { /* opcional */ }
+        try { addressEl.value = (await reverseGeocode(e.latLng.lat(), e.latLng.lng())).slice(0, 240); } catch { /* opcional */ }
       }
     });
-  }).catch((err) => toast(friendlyError(err), 'error'));
+  }).catch((err) => toast(err.message || friendlyError(err), 'error'));
 
   async function search() {
     const q = addressEl.value.trim() || nameEl.value.trim();
-    if (!q) return toast('Escribe una dirección o el nombre del sitio', 'error');
+    if (!q) return toast('Escribe el nombre del sitio o una dirección', 'error');
     const btn = $('#rf-geocode', container);
     btn.disabled = true;
     try {
-      const found = await geocode(q);
+      const near = map ? { lat: map.getCenter().lat(), lng: map.getCenter().lng() } : DEFAULT_CENTER;
+      const found = await searchPlaces(q, { near });
       if (!found.length) { toast('No se ha encontrado nada con ese texto'); results.hidden = true; return; }
       mount(results, html`${found.map((f, i) => html`<li><button type="button" data-i="${i}">${f.label}</button></li>`)}`);
       results.hidden = false;
       results.onclick = (e) => {
         const b = e.target.closest('button[data-i]');
         if (!b) return;
-        const f = found[Number(b.dataset.i)];
-        setPoint(f.lat, f.lng);
-        if (f.short) addressEl.value = f.short.slice(0, 240);
+        fillFromPlace(found[Number(b.dataset.i)]);
         results.hidden = true;
       };
     } catch (err) {
-      toast(friendlyError(err), 'error');
+      toast(err.message || friendlyError(err), 'error');
     } finally {
       btn.disabled = false;
     }
@@ -169,6 +187,7 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
 
   $('#rf-geocode', container).addEventListener('click', search);
   addressEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
+  nameEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
   clearBtn.addEventListener('click', () => { v.lat = null; v.lng = null; paintPoint(); });
   $('#rf-locate', container).addEventListener('click', async (e) => {
     const btn = e.currentTarget;
@@ -214,7 +233,6 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
       }
       return null;
     },
-    refreshMap() { map?.invalidateSize(); },
-    destroy() { map?.remove(); map = null; marker = null; $$('button', container).forEach((b) => { b.onclick = null; }); },
+    destroy() { marker?.setMap(null); marker = null; mapHandle?.destroy(); map = null; },
   };
 }

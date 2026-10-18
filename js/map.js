@@ -1,86 +1,143 @@
-// Mapas con Leaflet + OpenStreetMap. La librería se carga solo cuando hace falta.
-const LEAFLET = 'https://unpkg.com/leaflet@1.9.4/dist/';
-const CSS_SRI = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-const JS_SRI = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
-const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
-export const DEFAULT_CENTER = [40.4168, -3.7038]; // Madrid
+// Mapas con Google Maps Platform. La librería se carga solo cuando hace falta.
+// Clave pública restringida por dominio y con cuotas diarias (ver README).
+import { GOOGLE_MAPS_API_KEY } from './config.js';
+import { toast } from './dom.js';
+
+export const DEFAULT_CENTER = { lat: 40.4168, lng: -3.7038 }; // Madrid
+
+// Estilo nocturno (se aplica cuando la app está en tema oscuro)
+const DARK_STYLES = [
+  { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#9aa4b5' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+  { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] },
+];
+const LIGHT_STYLES = [{ featureType: 'poi.business', elementType: 'labels', stylers: [{ visibility: 'simplified' }] }];
+
+const isDark = () => document.documentElement.dataset.theme === 'dark';
+const stylesFor = () => (isDark() ? DARK_STYLES : LIGHT_STYLES);
+const liveMaps = new Set();
+new MutationObserver(() => liveMaps.forEach((m) => m.setOptions({ styles: stylesFor() })))
+  .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+export const isMapsConfigured = typeof GOOGLE_MAPS_API_KEY === 'string' && GOOGLE_MAPS_API_KEY.length > 20;
 
 let loading = null;
-
-export function loadLeaflet() {
-  if (window.L) return Promise.resolve(window.L);
+export function loadGoogleMaps() {
+  if (window.google?.maps?.importLibrary) return Promise.resolve(window.google.maps);
+  if (!isMapsConfigured) return Promise.reject(new Error('Falta la clave de Google Maps en js/config.js'));
   if (loading) return loading;
   loading = new Promise((resolve, reject) => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `${LEAFLET}leaflet.css`;
-    link.integrity = CSS_SRI;
-    link.crossOrigin = 'anonymous';
-    document.head.appendChild(link);
-
+    const cb = '__ourtableMapsReady';
+    window[cb] = () => { delete window[cb]; resolve(window.google.maps); };
+    window.gm_authFailure = () => { toast('Google Maps ha rechazado la clave. Revisa las restricciones de la clave.', 'error', 6000); };
     const script = document.createElement('script');
-    script.src = `${LEAFLET}leaflet.js`;
-    script.integrity = JS_SRI;
-    script.crossOrigin = 'anonymous';
-    script.onload = () => resolve(window.L);
-    script.onerror = () => { loading = null; reject(new Error('No se pudo cargar el mapa')); };
+    const params = new URLSearchParams({ key: GOOGLE_MAPS_API_KEY, v: 'weekly', loading: 'async', language: 'es', region: 'ES', callback: cb });
+    script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+    script.async = true;
+    script.onerror = () => { loading = null; reject(new Error('No se pudo cargar Google Maps')); };
     document.head.appendChild(script);
   });
   return loading;
 }
 
 export async function createMap(el, { center = DEFAULT_CENTER, zoom = 12, interactive = true } = {}) {
-  const L = await loadLeaflet();
-  const map = L.map(el, {
+  const gm = await loadGoogleMaps();
+  const map = new gm.Map(el, {
     center, zoom,
-    zoomControl: interactive, dragging: interactive, scrollWheelZoom: interactive, touchZoom: interactive,
-    doubleClickZoom: interactive, boxZoom: false, keyboard: interactive, tap: interactive,
+    disableDefaultUI: true,
+    zoomControl: interactive,
+    gestureHandling: interactive ? 'greedy' : 'none',
+    keyboardShortcuts: interactive,
+    clickableIcons: interactive,
+    styles: stylesFor(),
+    backgroundColor: isDark() ? '#242f3e' : '#e5e3df',
   });
-  L.tileLayer(TILES, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(map);
-  // Si el contenedor cambia de tamaño (giro del móvil, barra del navegador), recalcular.
-  if ('ResizeObserver' in window) {
-    const ro = new ResizeObserver(() => {
-      if (map._loaded && map._mapPane) map.invalidateSize();
-    });
-    ro.observe(el);
-    map.on('unload', () => ro.disconnect()); // Leaflet emite 'unload' en map.remove()
-  }
-  return { L, map };
+  liveMaps.add(map);
+  return { gm, map, destroy: () => { liveMaps.delete(map); gm.event.clearInstanceListeners(map); } };
 }
 
-export function pin(L, latlng, { color = '#d6336c', radius = 9 } = {}) {
-  return L.circleMarker(latlng, { radius, color: '#ffffff', weight: 2, fillColor: color, fillOpacity: 1 });
+/** Marcador circular de color. */
+export function pin(gm, map, position, { color = '#d6336c', radius = 9 } = {}) {
+  return new gm.Marker({
+    position, map,
+    icon: { path: gm.SymbolPath.CIRCLE, scale: radius, fillColor: color, fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 2 },
+  });
 }
 
-const NOMINATIM = 'https://nominatim.openstreetmap.org';
-
-async function nominatim(path, params) {
-  const url = new URL(`${NOMINATIM}/${path}`);
-  url.search = new URLSearchParams({ format: 'jsonv2', 'accept-language': 'es', ...params }).toString();
-  const res = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!res.ok) throw new Error('El servicio de direcciones no responde');
-  return res.json();
+/** Ajusta el mapa a una lista de puntos sin pasarse de zoom. */
+export function fitPoints(gm, map, points, maxZoom = 15) {
+  if (!points.length) return;
+  if (points.length === 1) { map.setCenter(points[0]); map.setZoom(maxZoom); return; }
+  const bounds = new gm.LatLngBounds();
+  points.forEach((p) => bounds.extend(p));
+  map.fitBounds(bounds, 48);
+  gm.event.addListenerOnce(map, 'idle', () => { if (map.getZoom() > maxZoom) map.setZoom(maxZoom); });
 }
 
-function shortAddress(item) {
-  const a = item.address || {};
-  const street = [a.road || a.pedestrian || a.square, a.house_number].filter(Boolean).join(' ');
-  const city = a.city || a.town || a.village || a.municipality || a.county;
+function shortAddress(components = [], fallback = '') {
+  const get = (type) => components.find((c) => c.types.includes(type))?.long_name;
+  const street = [get('route'), get('street_number')].filter(Boolean).join(' ');
+  const city = get('locality') || get('postal_town') || get('administrative_area_level_2');
   const parts = [street, city].filter(Boolean);
-  return parts.length ? parts.join(', ') : (item.display_name || '').split(',').slice(0, 3).join(',');
+  return parts.length ? parts.join(', ') : fallback.split(',').slice(0, 2).join(',');
 }
 
-export async function geocode(query) {
+/** Busca sitios por nombre o dirección (Places Text Search). */
+export async function searchPlaces(query, { near = DEFAULT_CENTER } = {}) {
   const q = query.trim().slice(0, 200);
   if (!q) return [];
-  const data = await nominatim('search', { q, limit: '6', addressdetails: '1' });
-  return data.map((d) => ({ lat: Number(d.lat), lng: Number(d.lon), label: d.display_name, short: shortAddress(d) }));
+  const gm = await loadGoogleMaps();
+  const { Place } = await gm.importLibrary('places');
+  const { places } = await Place.searchByText({
+    textQuery: q,
+    fields: ['displayName', 'formattedAddress', 'location'],
+    locationBias: near,
+    maxResultCount: 6,
+    language: 'es',
+    region: 'es',
+  });
+  return (places || []).map((p) => ({
+    name: p.displayName || '',
+    lat: p.location.lat(),
+    lng: p.location.lng(),
+    label: [p.displayName, p.formattedAddress].filter(Boolean).join(' · '),
+    short: (p.formattedAddress || '').replace(/,\s*\d{5}\b.*$/, '').replace(/,\s*(España|Spain)$/i, ''),
+  }));
+}
+
+/** Datos de un sitio de Google a partir de su placeId (al tocar un icono del mapa). */
+export async function placeById(placeId) {
+  const gm = await loadGoogleMaps();
+  const { Place } = await gm.importLibrary('places');
+  const place = new Place({ id: placeId });
+  await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+  return {
+    name: place.displayName || '',
+    lat: place.location?.lat(), lng: place.location?.lng(),
+    short: (place.formattedAddress || '').replace(/,\s*\d{5}\b.*$/, '').replace(/,\s*(España|Spain)$/i, ''),
+  };
 }
 
 export async function reverseGeocode(lat, lng) {
-  const d = await nominatim('reverse', { lat: String(lat), lon: String(lng), addressdetails: '1', zoom: '18' });
-  return d && !d.error ? shortAddress(d) : '';
+  const gm = await loadGoogleMaps();
+  const { results } = await new gm.Geocoder().geocode({ location: { lat, lng }, language: 'es' });
+  const r = results?.[0];
+  return r ? shortAddress(r.address_components, r.formatted_address) : '';
 }
 
 export function getPosition() {
