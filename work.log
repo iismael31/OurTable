@@ -17,7 +17,7 @@ Archivos / recursos afectados:
 Nota: tras el restablecimiento, la clave original seguía respondiendo `CONSUMER_SUSPENDED`; el usuario creó una clave nueva en el mismo proyecto restringida solo a `https://iismael31.github.io/*` (sin 127.0.0.1), que es la que queda en `js/config.js`. La clave anterior debe borrarse en Google Cloud.
 
 Verificación:
-Places API (REST) con la clave nueva y referer de GitHub Pages devuelve "Casa Lucio"; el mapa JS no puede probarse en local (clave restringida a GitHub Pages) ni sobre la web publicada hasta que se publique esta versión (la CSP de 1.1.2 no admite Google); se probará sobre https://iismael31.github.io/OurTable/ justo después del push, antes de usar los móviles.
+Places API (REST) con la clave nueva y referer de GitHub Pages devuelve "Casa Lucio"; el mapa JS no puede probarse en local (clave restringida a GitHub Pages) ni sobre la web publicada hasta que se publique esta versión (la CSP de 1.1.2 no admite Google); probado sobre https://iismael31.github.io/OurTable/ tras publicar 1.2.0: mapa con 29 teselas, sin aviso de error, Places Text Search y geocodificación inversa correctas, sin respuestas 4xx.
 
 ---
 
