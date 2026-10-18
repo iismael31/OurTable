@@ -1,6 +1,6 @@
 # OurTable
 
-Web app (PWA) para que una pareja guarde y comparta sus valoraciones de restaurantes: fotos, estrellas, platos, bebida, opinión, ubicación y enlaces (web, Instagram, TikTok...). Incluye una lista de sitios pendientes de visitar. Funciona en iPhone y Android desde el navegador y se puede instalar en la pantalla de inicio. Tema claro, oscuro y automático.
+Web app (PWA) para que una pareja guarde y comparta sus valoraciones de restaurantes: fotos, estrellas, platos, bebida, opinión, ubicación en Google Maps y enlaces (web, Instagram, TikTok...). Incluye una lista de sitios pendientes de visitar. Funciona en iPhone y Android desde el navegador y se puede instalar en la pantalla de inicio. Tema claro, oscuro y automático.
 
 - **Guía para usarla (sin tecnicismos):** [GUIA-DE-USO.md](GUIA-DE-USO.md)
 - **Documentación técnica:** [DOCUMENTACION-TECNICA.md](DOCUMENTACION-TECNICA.md)
@@ -21,13 +21,24 @@ Web app (PWA) para que una pareja guarde y comparta sus valoraciones de restaura
    ```
    La clave *publishable* (o la antigua *anon*) es pública por diseño; la seguridad la dan las reglas RLS del esquema.
 
-### 2. GitHub Pages (publicación)
+### 2. Google Maps (mapas y búsqueda de sitios), gratis con límites
+Google exige una cuenta de facturación con tarjeta aunque el uso sea gratuito (10.000 usos/mes por API básica, 5.000 en Places Pro). Los límites diarios de abajo hacen imposible superar el gratuito.
+1. En https://console.cloud.google.com crea un proyecto (p. ej. `OurTable`) y asocia una cuenta de facturación.
+2. **APIs y servicios → Biblioteca**: habilita **Maps JavaScript API**, **Geocoding API** y **Places API (New)**.
+3. **Google Maps Platform → Claves y credenciales → Crear credenciales → Clave de API**. Edita la clave:
+   - *Restricciones de aplicación*: **Sitios web** → añade `https://iismael31.github.io/*`. (Para probar los mapas en local habría que añadir también `http://127.0.0.1:8765/*`; la clave actual solo admite GitHub Pages.)
+   - *Restricciones de API*: **Restringir clave** → marca solo las tres APIs anteriores.
+4. **Google Maps Platform → Cuotas**: pon límites **por día**: Maps JavaScript API *Map loads* = 300; Geocoding *Requests* = 100; Places API (New) *Text Search* = 100 y *Place Details* = 100. (300 × 31 = 9.300 < 10.000 gratis.)
+5. **Facturación → Presupuestos y alertas**: crea un presupuesto de 1 € con aviso por email (informativo).
+6. Pega la clave en `js/config.js` → `GOOGLE_MAPS_API_KEY`.
+
+### 3. GitHub Pages (publicación)
 1. Crea un repositorio en GitHub (puede ser privado) y sube esta carpeta.
 2. En **Settings → Pages**, elige **Deploy from a branch**, rama `main`, carpeta `/ (root)`. En un minuto tendrás una URL del tipo `https://TU_USUARIO.github.io/NOMBRE_REPO/`.
 3. En **Settings → Secrets and variables → Actions**, añade los secretos `SUPABASE_URL` y `SUPABASE_ANON_KEY` (mismos valores que en `js/config.js`). Sirven para la tarea automática que evita que el proyecto gratuito de Supabase se pause por inactividad.
 4. Vuelve a Supabase → **Authentication → URL Configuration** y pon la URL de GitHub Pages como **Site URL** y en **Redirect URLs** (necesario para el enlace de "olvidé mi contraseña").
 
-### 3. En los móviles
+### 4. En los móviles
 Abre la URL en Safari (iPhone) o Chrome (Android), inicia sesión y usa **Añadir a pantalla de inicio**. Los pasos exactos están en la pantalla de Ajustes de la app y en la guía de uso.
 
 ## Desarrollo local

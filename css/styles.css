@@ -274,14 +274,15 @@ p { margin: 0; }
 .map { width: 100%; height: 100%; background: var(--surface-2); }
 .map-full { position: fixed; inset: 0; bottom: calc(var(--tab-h) + var(--safe-b)); z-index: 0; }
 .map-picker { position: relative; z-index: 0; height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-top: 8px; }
-html[data-theme="dark"] .leaflet-tile { filter: brightness(.7) contrast(1.05) saturate(.75); }
-.leaflet-container { font-family: var(--font); }
-.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-.leaflet-popup-content { margin: 10px 14px; font-size: 14px; }
-.leaflet-popup-content a { font-weight: 700; }
-.leaflet-control-zoom a { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border) !important; }
-.leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 80%, transparent) !important; color: var(--muted) !important; font-size: 10px !important; }
-.leaflet-control-attribution a { color: var(--muted) !important; }
+/* Google Maps: ventana de información acorde al tema */
+.gm-style .gm-style-iw-c { background: var(--surface); color: var(--text); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; }
+.gm-style .gm-style-iw-d { overflow: hidden !important; }
+.gm-style .gm-style-iw-tc::after { background: var(--surface); }
+.gm-style .gm-style-iw-chr { position: absolute; right: 0; top: 0; }
+.gm-style .gm-style-iw-chr button span { background-color: var(--muted) !important; }
+.gm-popup { font-family: var(--font); font-size: 14px; line-height: 1.4; padding-right: 20px; }
+.gm-popup a { font-weight: 700; color: var(--accent); }
+.gm-style .gm-style-cc, .gm-style a[href^="https://maps.google.com/maps"] { font-size: 10px; }
 .map-fab { position: absolute; right: 12px; bottom: 28px; z-index: 500; }
 .geo-results { list-style: none; padding: 0; margin: 6px 0 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
 .geo-results li button { width: 100%; text-align: left; padding: 10px 12px; border: 0; background: transparent; font-size: 14px; border-bottom: 1px solid var(--border); }

@@ -6,8 +6,9 @@
 
 ## Pendientes
 
-- [ ] 🔴 [funcionalidad] Reactivar Google Maps cuando Google Cloud restablezca el proyecto `OurTable`: revertir el commit de vuelta a OpenStreetMap, comprobar clave y cuotas, subir versión.
-      Justificación: el usuario prefiere Google Maps y la búsqueda de restaurantes por nombre; la implementación ya existe en el historial (3d409e6).
+- [ ] 🟡 [seguridad] Borrar en Google Cloud la clave antigua `AIzaSyCK...` (suspendida y ya sustituida) en Google Maps Platform → Claves y credenciales.
+      Justificación: una clave sin uso es superficie de riesgo innecesaria.
+
 
 
 - [ ] 🟡 [seguridad] Configurar en Supabase la "Site URL" y "Redirect URLs" con `https://iismael31.github.io/OurTable/`.
@@ -29,6 +30,8 @@
       Justificación: hoy se muestra solo la etiqueta; traer metadatos requeriría un proxy o función de servidor por CORS.
 
 ## Completados
+
+- [x] 2026-10-18 — Google Cloud restableció el proyecto; Google Maps reactivado (v1.2.0).
 
 - [x] 2026-10-17 — Secretos del keep-alive configurados; primera ejecución correcta (GitHub Actions, 15:16 UTC).
 - [x] 2026-10-17 — App instalada y probada en los dos iPhones con el proyecto Supabase real.

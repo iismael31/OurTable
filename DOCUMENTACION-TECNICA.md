@@ -9,7 +9,7 @@ PWA para dos usuarios (pareja) que registran valoraciones de restaurantes con fo
 | Lenguaje | JavaScript (ES2022, módulos) | — | Sin transpilar ni empaquetar |
 | UI | HTML5 + CSS (custom properties, `color-mix`) | — | Tema claro/oscuro por `data-theme` en `<html>` |
 | Backend | Supabase (Postgres 15, PostgREST, GoTrue, Storage, Realtime) | supabase-js 2.118.0 | Cargado por ESM desde jsDelivr; versión fijada (soporta claves publishable) |
-| Mapas | Leaflet + teselas OpenStreetMap + Nominatim | Leaflet 1.9.4 | Carga perezosa con SRI; sin clave de API |
+| Mapas | Google Maps Platform (Maps JavaScript API, Places API (New), Geocoding API) | `v=weekly` | Carga perezosa; clave pública restringida por dominio y con cuotas diarias |
 | Hosting | GitHub Pages | — | Rutas relativas (funciona bajo subcarpeta) |
 | Automatización | GitHub Actions | — | `keepalive.yml` cada 3 días |
 | Dev local | `python3 -m http.server` | 3.9+ | Cualquier servidor estático sirve |
@@ -24,9 +24,9 @@ PWA para dos usuarios (pareja) que registran valoraciones de restaurantes con fo
  │  ui/*    vistas             │   Realtime         │   + RLS (deny by default) │
  │  sw.js   caché de la app    │                    │ Storage: bucket "photos"  │
  └─────────────────────────────┘                    └───────────────────────────┘
-          │  teselas / geocodificación
+          │  mapas, búsqueda de sitios, geocodificación inversa
           ▼
-   tile.openstreetmap.org · nominatim.openstreetmap.org
+   maps.googleapis.com · places.googleapis.com (Google Maps Platform)
 ```
 - Un restaurante puede estar "pendiente de visitar" (`want_to_go`); la lista tiene dos modos (Visitados / Pendientes) y el mapa lo pinta en morado.
 - `app.js` arranca la sesión, mantiene el estado en memoria (`profiles`, `restaurants`, `reviews` "ligeras" y `summaries` calculadas en cliente) y enruta por `location.hash`.
@@ -48,7 +48,7 @@ js/supabase.js           Cliente Supabase (createClient) y flag isConfigured
 js/auth.js               Sesión, login, logout, recuperación y cambio de contraseña
 js/db.js                 Consultas, mutaciones, Storage (URLs firmadas) y suscripción Realtime
 js/image.js              Compresión de fotos (canvas)
-js/map.js                Carga perezosa de Leaflet, mapas, geocodificación Nominatim, geolocalización
+js/map.js                Carga perezosa de Google Maps, mapas (estilo oscuro), marcadores, Places Text Search, Place Details, geocodificación inversa, geolocalización
 js/ui/login.js           Acceso y nueva contraseña (recuperación)
 js/ui/list.js            Lista con búsqueda, orden y filtro
 js/ui/detail.js          Ficha del restaurante, minimapa y valoraciones (editar/borrar propias)
@@ -71,7 +71,8 @@ GUIA-DE-USO.md           Guía no técnica
 |----------|-------|-------------|-------------|----------------------|
 | `SUPABASE_URL` | `js/config.js` | URL del proyecto | Sí | `https://abcd1234.supabase.co` |
 | `SUPABASE_ANON_KEY` | `js/config.js` | Clave pública *publishable* `sb_publishable_...` (o la antigua *anon* `eyJ...`) | Sí | `sb_publishable_abc...` |
-| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.1.2` |
+| `GOOGLE_MAPS_API_KEY` | `js/config.js` | Clave de Google Maps Platform (pública, restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
+| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.2.0` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Secretos de GitHub Actions | Para el keep-alive | Recomendado | — |
 | `VERSION` | `sw.js` | Cambiarla invalida la caché de la app | — | `v1.0.1` |
 
@@ -116,16 +117,17 @@ Realtime: publicación `supabase_realtime` incluye `restaurants` y `reviews` (re
 - Validación en base de datos (CHECK de longitudes, rangos, tipos JSON, tamaño de arrays) además de la validación de cliente.
 - Escape automático de todo dato interpolado en plantillas (`html` tag en `dom.js`); nada de `innerHTML` con datos sin escapar.
 - Enlaces de usuario: se normalizan y validan al guardar (`normalizeUrl`) y se vuelven a validar al mostrar (`safeUrl`, solo http/https), con `target=_blank rel="noopener noreferrer"`.
-- CSP por `<meta>`: scripts solo propios + jsDelivr/unpkg; conexiones solo a Supabase, Nominatim y CDNs; `object-src 'none'`, `base-uri 'self'`. Leaflet con SRI.
+- CSP por `<meta>`: scripts solo propios + jsDelivr + Google Maps; conexiones solo a Supabase, jsDelivr y Google Maps/Places; `object-src 'none'`, `base-uri 'self'`.
+- Clave de Google Maps restringida a los dominios de la app y a las tres APIs usadas, con cuotas diarias que impiden superar el tramo gratuito (y por tanto cualquier cargo).
 - Fotos en bucket privado, servidas por URLs firmadas temporales; límite de tamaño y MIME en el bucket; compresión previa.
 - Mensajes de error al usuario genéricos (`friendlyError`), sin trazas internas.
 - Enlaces externos con `rel="noopener"`; `referrer` restringido.
 
 ## 9. Decisiones de optimización
 - Resúmenes (media, nº visitas, última visita, portada) calculados en cliente a partir de una consulta "ligera" de reviews (sin `comment` ni `dishes`); evita una vista/RPC y N+1.
-- Carga perezosa de Leaflet solo en vistas con mapa; SRI y caché SWR en el service worker.
+- Carga perezosa de Google Maps solo en vistas con mapa; cada `new google.maps.Map` cuenta como un *map load*, por eso el minimapa de la ficha es estático (sin gestos) y el mapa general reutiliza marcadores al refrescar.
 - Fotos: dos tamaños (miniatura para listas, completa para el lightbox); URLs firmadas cacheadas en memoria y pedidas en lote.
-- Service worker: precaché de la carcasa (abre al instante); todos los archivos, incluida la página, se sirven de la caché de la versión instalada para no mezclar versiones; la nueva se instala en segundo plano y la app se recarga sola al activarse (o avisa si hay un formulario abierto). Nunca cachea datos ni teselas.
+- Service worker: precaché de la carcasa (abre al instante); todos los archivos, incluida la página, se sirven de la caché de la versión instalada para no mezclar versiones; la nueva se instala en segundo plano y la app se recarga sola al activarse (o avisa si hay un formulario abierto). Nunca cachea datos ni mapas.
 - Realtime con debounce para agrupar ráfagas de cambios; recarga también al volver la app a primer plano.
 - Sin framework ni build: ~2.600 líneas, cero dependencias de desarrollo, tiempo de carga mínimo.
 
@@ -136,7 +138,7 @@ Pendiente (ver `to-do.md`): pruebas end-to-end contra un proyecto Supabase real 
 ## 11. Limitaciones conocidas y deuda técnica
 - Plan gratuito de Supabase: 500 MB de BD, 1 GB de Storage, pausa tras 7 días sin actividad (mitigada con `keepalive.yml`).
 - GitHub Pages no permite cabeceras HTTP: la CSP va en `<meta>` y no hay `frame-ancestors`/HSTS propios.
-- Librerías cargadas desde CDN (versiones fijadas); vendorizarlas está en `to-do.md`.
+- supabase-js cargado desde CDN (versión fijada); Google Maps se carga necesariamente desde Google.
 - El borrado en cascada de un restaurante no limpia fotos huérfanas en Storage (la UI solo permite borrar restaurantes sin valoraciones).
 - Sin modo offline para escribir; sin notificaciones push.
 - Resto en `to-do.md`.

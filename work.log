@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-10-18 15:10 — Google Maps reactivado (v1.2.0)
+
+Tipo: cambio
+
+Qué se hizo:
+Google Cloud restableció el proyecto `OurTable` tras la apelación del usuario. Se revierte el commit dafefb5 (vuelta a OpenStreetMap) recuperando íntegra la implementación de Google Maps de 3d409e6, y se conservan las mejoras posteriores (recarga automática al actualizar y precaché con `cache: 'reload'`). Versión 1.2.0.
+
+Archivos / recursos afectados:
+- index.html, sw.js, css/styles.css, js/config.js, js/map.js, js/ui/restaurant-fields.js, js/ui/map-view.js, js/ui/detail.js, README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+Nota: tras el restablecimiento, la clave original seguía respondiendo `CONSUMER_SUSPENDED`; el usuario creó una clave nueva en el mismo proyecto restringida solo a `https://iismael31.github.io/*` (sin 127.0.0.1), que es la que queda en `js/config.js`. La clave anterior debe borrarse en Google Cloud.
+
+Verificación:
+Places API (REST) con la clave nueva y referer de GitHub Pages devuelve "Casa Lucio"; el mapa JS no puede probarse en local (clave restringida a GitHub Pages) ni sobre la web publicada hasta que se publique esta versión (la CSP de 1.1.2 no admite Google); se probará sobre https://iismael31.github.io/OurTable/ justo después del push, antes de usar los móviles.
+
+---
+
 ## 2026-10-18 13:30 — Vuelta temporal a OpenStreetMap (v1.1.2)
 
 Tipo: incidencia | cambio
