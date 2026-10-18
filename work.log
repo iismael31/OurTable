@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-10-18 12:40 — Actualizaciones sin mezcla de versiones (v1.1.1)
+
+Tipo: incidencia | cambio
+
+Qué se hizo:
+Incidencia: en uno de los dos móviles, tras publicar 1.1.0, aparecía "No se pudo cargar el mapa" (mensaje de la versión antigua). Causa: el service worker servía `index.html` desde la red (CSP nueva) pero los módulos JS desde la caché antigua (Leaflet, bloqueado por la CSP nueva). Solución: la página también se sirve desde la caché de la versión instalada (stale-while-revalidate), de modo que cada carga es coherente; cuando el service worker nuevo toma el control, la app se recarga sola (`controllerchange`), salvo que haya un formulario abierto, en cuyo caso avisa con un toast. Versión 1.1.1.
+
+Archivos / recursos afectados:
+- sw.js, js/app.js, js/config.js, DOCUMENTACION-TECNICA.md
+
+Verificación:
+Lógica revisada; se comprobará en los móviles tras publicar (la primera apertura tras esta publicación aún puede necesitar cerrar y abrir la app una vez, porque el service worker anterior sigue en control hasta entonces).
+
+---
+
 ## 2026-10-18 10:30 — Cambio de mapas a Google Maps Platform (v1.1.0)
 
 Tipo: cambio | decisión | seguridad

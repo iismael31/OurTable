@@ -72,7 +72,7 @@ GUIA-DE-USO.md           Guía no técnica
 | `SUPABASE_URL` | `js/config.js` | URL del proyecto | Sí | `https://abcd1234.supabase.co` |
 | `SUPABASE_ANON_KEY` | `js/config.js` | Clave pública *publishable* `sb_publishable_...` (o la antigua *anon* `eyJ...`) | Sí | `sb_publishable_abc...` |
 | `GOOGLE_MAPS_API_KEY` | `js/config.js` | Clave de Google Maps Platform (pública, restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
-| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.1.0` |
+| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.1.1` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Secretos de GitHub Actions | Para el keep-alive | Recomendado | — |
 | `VERSION` | `sw.js` | Cambiarla invalida la caché de la app | — | `v1.0.1` |
 
@@ -87,7 +87,7 @@ GUIA-DE-USO.md           Guía no técnica
 
 **GitHub Pages:** subir el repositorio, *Settings → Pages → Deploy from a branch* (`main`, `/`). Añadir los secretos para `keepalive.yml`. Cada `git push` republica.
 
-**Actualizaciones:** al cambiar archivos de la app, subir la `VERSION` de `sw.js` para que los clientes instalados refresquen la caché; la app avisa con un toast "Hay una versión nueva".
+**Actualizaciones:** al cambiar archivos de la app, subir la `VERSION` de `sw.js` para que los clientes instalados refresquen la caché; la app se recarga sola al activarse la versión nueva (o avisa con un toast si hay un formulario abierto).
 
 ## 7. Modelo de datos / API
 Acceso vía PostgREST (supabase-js). Tablas en `public`:
@@ -127,7 +127,7 @@ Realtime: publicación `supabase_realtime` incluye `restaurants` y `reviews` (re
 - Resúmenes (media, nº visitas, última visita, portada) calculados en cliente a partir de una consulta "ligera" de reviews (sin `comment` ni `dishes`); evita una vista/RPC y N+1.
 - Carga perezosa de Google Maps solo en vistas con mapa; cada `new google.maps.Map` cuenta como un *map load*, por eso el minimapa de la ficha es estático (sin gestos) y el mapa general reutiliza marcadores al refrescar.
 - Fotos: dos tamaños (miniatura para listas, completa para el lightbox); URLs firmadas cacheadas en memoria y pedidas en lote.
-- Service worker: precaché de la carcasa (abre al instante), network-first para `index.html`, nunca cachea datos ni teselas.
+- Service worker: precaché de la carcasa (abre al instante); todos los archivos, incluida la página, se sirven de la caché de la versión instalada para no mezclar versiones; la nueva se instala en segundo plano y la app se recarga sola al activarse (o avisa si hay un formulario abierto). Nunca cachea datos ni mapas.
 - Realtime con debounce para agrupar ráfagas de cambios; recarga también al volver la app a primer plano.
 - Sin framework ni build: ~2.600 líneas, cero dependencias de desarrollo, tiempo de carga mínimo.
 

@@ -168,18 +168,17 @@ function showRecovery() {
 // ---------- Service worker ----------
 function registerSW() {
   if (!('serviceWorker' in navigator)) return;
-  let hadController = Boolean(navigator.serviceWorker.controller);
-  navigator.serviceWorker.register('./sw.js').then((reg) => {
-    reg.addEventListener('updatefound', () => {
-      reg.installing?.addEventListener('statechange', (e) => {
-        if (e.target.state === 'activated' && hadController) {
-          toast('Hay una versión nueva. Toca aquí para actualizar.', 'info', 8000);
-          $('#toasts').lastElementChild?.addEventListener('click', () => location.reload());
-        }
-      });
-    });
-  }).catch(() => { /* la app funciona igual sin caché */ });
-  navigator.serviceWorker.addEventListener('controllerchange', () => { hadController = true; });
+  const hadController = Boolean(navigator.serviceWorker.controller);
+  navigator.serviceWorker.register('./sw.js').then((reg) => { reg.update().catch(() => {}); }).catch(() => { /* la app funciona igual sin caché */ });
+  // Una versión nueva ha tomado el control: recargar para no mezclar archivos
+  // de dos versiones. Si hay un formulario abierto, avisar en vez de recargar.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) return; // primera instalación: no hay nada que recargar
+    const editing = /^#\/(new|wish|.*\/edit)/.test(location.hash);
+    if (!editing) { location.reload(); return; }
+    toast('Hay una versión nueva. Toca aquí para actualizar cuando termines.', 'info', 10000);
+    $('#toasts').lastElementChild?.addEventListener('click', () => location.reload());
+  });
 }
 
 // ---------- Pantalla de configuración pendiente ----------
