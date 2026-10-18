@@ -15,7 +15,7 @@ Archivos / recursos afectados:
 - js/ui/place-search.js (nuevo), js/ui/restaurant-fields.js, js/ui/form.js, css/styles.css, sw.js, js/config.js, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md
 
 Verificación:
-Navegador local con mock de Supabase (puerto distinto para evitar la caché HTTP): en "Nueva valoración", al escribir "casa" aparece la sección "Ya guardados" con Casa Lucio y la sección Google Maps (en local marcada "no disponible" porque la clave solo admite GitHub Pages; el error de Google se muestra ahora con un mensaje amable); elegir el guardado lo deja seleccionado. La parte de Google se verifica sobre la web publicada tras el push. `js/supabase.js` real restaurado al terminar.
+Navegador local con mock de Supabase (puerto distinto para evitar la caché HTTP): en "Nueva valoración", al escribir "casa" aparece la sección "Ya guardados" con Casa Lucio y la sección Google Maps (en local marcada "no disponible" porque la clave solo admite GitHub Pages; el error de Google se muestra ahora con un mensaje amable); elegir el guardado lo deja seleccionado. Verificado después sobre https://iismael31.github.io/OurTable/ (1.3.0): al escribir "casa lucio" la lista muestra "Ya guardados" y "Google Maps · 📍 Casa Lucio · C. de la Cava Baja, 35"; al elegirlo devuelve nombre, dirección corta y coordenadas. `js/supabase.js` real restaurado al terminar.
 
 ---
 
