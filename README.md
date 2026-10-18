@@ -28,7 +28,7 @@ Google exige una cuenta de facturación con tarjeta aunque el uso sea gratuito (
 3. **Google Maps Platform → Claves y credenciales → Crear credenciales → Clave de API**. Edita la clave:
    - *Restricciones de aplicación*: **Sitios web** → añade `https://iismael31.github.io/*`. (Para probar los mapas en local habría que añadir también `http://127.0.0.1:8765/*`; la clave actual solo admite GitHub Pages.)
    - *Restricciones de API*: **Restringir clave** → marca solo las tres APIs anteriores.
-4. **Google Maps Platform → Cuotas**: pon límites **por día**: Maps JavaScript API *Map loads* = 300; Geocoding *Requests* = 100; Places API (New) *Text Search* = 100 y *Place Details* = 100. (300 × 31 = 9.300 < 10.000 gratis.)
+4. **Google Maps Platform → Cuotas**: pon límites **por día**: Maps JavaScript API *Map loads* = 300; Geocoding *v3 requests* = 100; Places API (New) *SearchTextRequest* = 100, *GetPlaceRequest* = 30 (devuelve la web del restaurante, tarifa Enterprise con 1.000 gratis/mes) y *GetPhotoMediaRequest* = 100. (300 × 31 = 9.300 < 10.000 gratis; 30 × 31 = 930 < 1.000.)
 5. **Facturación → Presupuestos y alertas**: crea un presupuesto de 1 € con aviso por email (informativo).
 6. Pega la clave en `js/config.js` → `GOOGLE_MAPS_API_KEY`.
 

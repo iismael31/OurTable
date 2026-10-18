@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-10-18 19:00 — Foto y enlaces automáticos desde Google Maps; pestañas en Añadir (v1.4.0)
+
+Tipo: cambio
+
+Qué se hizo:
+- Al elegir un sitio del buscador (alta o formulario) se llama una vez a Place Details (`placeById`, campos displayName, formattedAddress, location, websiteURI, googleMapsURI, photos) y se rellenan: web y enlace de Google Maps como enlaces (sin duplicar por dominio), foto del sitio como portada (`cover_url`) y `place_id`. `enrichPlace` degrada sin error si falla.
+- Esquema: columnas `place_id` y `cover_url` (https, ≤1000) en `restaurants`, con `alter table ... add column if not exists` para la instalación existente.
+- Lista: la tarjeta usa la primera foto propia y, si no hay, la de Google; ficha: banner con la foto. CSP: `https://*.googleusercontent.com` en img-src.
+- Pantalla Añadir con pestañas "⭐ Nueva valoración" / "📌 Quiero ir" (`add-tabs.js`), presentes en ambos formularios; desaparece el enlace de texto anterior.
+- Versión 1.4.0. Guía, documentación técnica, README (cuotas GetPlaceRequest 30/día, GetPhotoMediaRequest 100/día) y to-do actualizados.
+
+Archivos / recursos afectados:
+- supabase/schema.sql, js/map.js, js/ui/restaurant-fields.js, js/ui/form.js, js/ui/wish.js, js/ui/add-tabs.js (nuevo), js/ui/list.js, js/ui/detail.js, css/styles.css, index.html, sw.js, js/config.js, README.md, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+Verificación:
+Navegador local con mock (puerto nuevo): portada en la tarjeta de la lista y banner en la ficha, pestañas en Añadir y en Quiero ir, buscador y campos intactos. La obtención real de foto/web se verifica sobre la web publicada tras el push (la clave solo admite GitHub Pages). `js/supabase.js` real restaurado.
+
+---
+
 ## 2026-10-18 17:00 — Buscador de restaurantes en Google Maps al escribir (v1.3.0)
 
 Tipo: cambio

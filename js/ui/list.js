@@ -1,4 +1,4 @@
-import { $, $$, html, mount, raw, starsView, fmtDate, fmtPrice, debounce } from '../dom.js';
+import { $, $$, html, mount, raw, starsView, fmtDate, fmtPrice, debounce, safeUrl } from '../dom.js';
 import { signedUrls } from '../db.js';
 
 // Los filtros se recuerdan mientras la app está abierta.
@@ -33,7 +33,7 @@ function wishCard({ r }) {
   const n = r.links?.length || 0;
   return html`
     <a class="card" href="#/r/${r.id}">
-      <div class="card-cover">📌</div>
+      <div class="card-cover">${safeUrl(r.cover_url || '') ? html`<img src="${safeUrl(r.cover_url)}" alt="" loading="lazy">` : '📌'}</div>
       <div class="card-body">
         <div class="card-title">${r.name}</div>
         ${sub ? html`<div class="card-sub">${sub}</div>` : ''}
@@ -49,7 +49,7 @@ function card(item) {
   const sub = [r.cuisine, r.address].filter(Boolean).join(' · ');
   return html`
     <a class="card" href="#/r/${r.id}">
-      <div class="card-cover" data-thumb="${s.cover || ''}">${s.cover ? '' : '🍽️'}</div>
+      <div class="card-cover" data-thumb="${s.cover || ''}">${s.cover ? '' : safeUrl(r.cover_url || '') ? html`<img src="${safeUrl(r.cover_url)}" alt="" loading="lazy">` : '🍽️'}</div>
       <div class="card-body">
         <div class="card-title">${r.name}</div>
         ${sub ? html`<div class="card-sub">${sub}</div>` : ''}

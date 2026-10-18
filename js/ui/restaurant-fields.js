@@ -1,7 +1,7 @@
 // Campos de un restaurante (nombre, cocina, dirección, ubicación en mapa, enlaces y notas).
 // Lo usan el formulario de valoración, el de sitio pendiente y la edición del restaurante.
-import { $, $$, html, mount, raw, toast, friendlyError, normalizeUrl, linkHost } from '../dom.js';
-import { createMap, pin, placeById, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
+import { $, $$, html, mount, raw, toast, friendlyError, normalizeUrl, linkHost, safeUrl } from '../dom.js';
+import { createMap, pin, placeById, enrichPlace, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
 import { placeSearchBox } from './place-search.js';
 
 export const CUISINES = [
@@ -21,6 +21,8 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     lat: initial.lat ?? null,
     lng: initial.lng ?? null,
     notes: initial.notes ?? '',
+    place_id: initial.place_id ?? null,
+    cover_url: safeUrl(initial.cover_url || '') || null,
   };
   let gm = null;
   let map = null;
@@ -32,6 +34,10 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
       <span class="label">Buscar en Google Maps</span>
       <div id="rf-search"></div>
       <p class="help">Escribe el nombre del restaurante y elígelo de la lista: se rellenan el nombre, la dirección y el punto en el mapa.</p>
+    </div>
+    <div class="field" id="rf-cover-wrap" hidden>
+      <span class="label">Foto del restaurante (de Google Maps)</span>
+      <div class="cover-preview"><img alt=""><button type="button" class="btn btn-sm btn-ghost" id="rf-cover-remove">Quitar foto</button></div>
     </div>
     <div class="field">
       <label for="rf-name">Nombre del restaurante *</label>
@@ -78,6 +84,15 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
   const clearBtn = $('#rf-clear', container);
 
   const hasPoint = () => v.lat != null && v.lng != null;
+
+  // ----- Foto de portada (de Google Maps) -----
+  const coverWrap = $('#rf-cover-wrap', container);
+  function renderCover() {
+    coverWrap.hidden = !v.cover_url;
+    if (v.cover_url) $('img', coverWrap).src = v.cover_url;
+  }
+  $('#rf-cover-remove', container).addEventListener('click', () => { v.cover_url = null; renderCover(); });
+  renderCover();
 
   // ----- Enlaces -----
   const linksBox = $('#rf-links', container);
@@ -133,17 +148,36 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     }
   }
 
+  function addLink(label, url) {
+    const clean = normalizeUrl(url);
+    if (!clean) return;
+    const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
+    if (links.some((l) => normalizeUrl(l.url) === clean || (host(l.url) === host(clean) && label !== 'Google Maps'))) return;
+    if (links.length >= MAX_LINKS) return;
+    links.push({ label, url: clean });
+  }
+
   function fillFromPlace(place, { overwrite = false } = {}) {
     if (place.lat == null) return;
     setPoint(place.lat, place.lng);
     if (place.short && (overwrite || !addressEl.value.trim())) addressEl.value = place.short.slice(0, 240);
     if (place.name && (overwrite || !nameEl.value.trim())) nameEl.value = place.name.slice(0, 120);
+    if (place.id) v.place_id = place.id;
+    if (place.website) addLink('Web', place.website);
+    if (place.mapsUrl) addLink('Google Maps', place.mapsUrl);
+    if (place.website || place.mapsUrl) { renderLinks(); $('#rf-extras', container).open = true; }
+    if (place.photoUrl && (overwrite || !v.cover_url)) { v.cover_url = safeUrl(place.photoUrl) || null; renderCover(); }
   }
 
   const searchBox = placeSearchBox($('#rf-search', container), {
     placeholder: 'Nombre del restaurante (ej. Casa Lucio)',
     near: () => (map ? { lat: map.getCenter().lat(), lng: map.getCenter().lng() } : DEFAULT_CENTER),
-    onPick: ({ place }) => { if (place) { fillFromPlace(place, { overwrite: true }); searchBox.clear(); } },
+    onPick: async ({ place }) => {
+      if (!place) return;
+      searchBox.clear();
+      fillFromPlace(place, { overwrite: true });
+      fillFromPlace(await enrichPlace(place), { overwrite: true }); // web, enlace a Google Maps y foto
+    },
   });
 
   createMap($('#rf-map', container), {
@@ -197,6 +231,8 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
         lat: hasPoint() ? v.lat : null,
         lng: hasPoint() ? v.lng : null,
         notes: $('#rf-notes', container).value.trim().slice(0, 1000) || null,
+        place_id: v.place_id || null,
+        cover_url: v.cover_url || null,
         links: links
           .map((l) => ({ url: normalizeUrl(l.url), label: l.label.trim().slice(0, 40) }))
           .filter((l) => l.url)
@@ -213,6 +249,7 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
       }
       return null;
     },
+    applyPlace(place) { fillFromPlace(place, { overwrite: true }); },
     destroy() { marker?.setMap(null); marker = null; mapHandle?.destroy(); map = null; },
   };
 }

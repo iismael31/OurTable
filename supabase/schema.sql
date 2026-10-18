@@ -77,6 +77,8 @@ create table if not exists public.restaurants (
   notes       text check (notes is null or char_length(notes) <= 1000),
   links       jsonb not null default '[]'::jsonb
               check (jsonb_typeof(links) = 'array' and jsonb_array_length(links) <= 10),
+  place_id    text check (place_id is null or char_length(place_id) <= 200),
+  cover_url   text check (cover_url is null or (char_length(cover_url) <= 1000 and cover_url ~ '^https://')),
   created_by  uuid not null default auth.uid() references public.profiles (id),
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
@@ -87,6 +89,8 @@ create table if not exists public.restaurants (
 alter table public.restaurants add column if not exists want_to_go boolean not null default false;
 alter table public.restaurants add column if not exists notes text;
 alter table public.restaurants add column if not exists links jsonb not null default '[]'::jsonb;
+alter table public.restaurants add column if not exists place_id text check (place_id is null or char_length(place_id) <= 200);
+alter table public.restaurants add column if not exists cover_url text check (cover_url is null or (char_length(cover_url) <= 1000 and cover_url ~ '^https://'));
 
 create index if not exists restaurants_name_idx on public.restaurants (lower(name));
 create index if not exists restaurants_want_idx on public.restaurants (want_to_go) where want_to_go;

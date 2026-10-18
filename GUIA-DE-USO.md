@@ -21,8 +21,8 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 ## Cómo hacer las tareas principales
 
 ### Añadir una valoración
-1. Pulsa el botón redondo **+ Añadir** de la barra inferior.
-2. **Restaurante:** escribe su nombre en el buscador. Mientras escribes salen primero los sitios que ya tenéis guardados y, debajo, los resultados de Google Maps. Toca el que sea: si estaba guardado, queda elegido; si es de Google Maps, se abre el alta con el nombre, la dirección y el punto en el mapa ya rellenos (puedes corregir lo que quieras y añadir el tipo de cocina). También puedes tocar el icono del restaurante en el mapa o, si estás allí, pulsar **Estoy aquí: usar mi ubicación actual** (el móvil pedirá permiso de ubicación la primera vez). Si no aparece en Google Maps, usa **Crear a mano un restaurante nuevo**.
+1. Pulsa el botón redondo **+ Añadir** de la barra inferior. Arriba verás dos pestañas: **Nueva valoración** y **Quiero ir**; para valorar, deja la primera.
+2. **Restaurante:** escribe su nombre en el buscador. Mientras escribes salen primero los sitios que ya tenéis guardados y, debajo, los resultados de Google Maps. Toca el que sea: si estaba guardado, queda elegido; si es de Google Maps, se abre el alta con el nombre, la dirección, el punto en el mapa, la **foto del restaurante** y sus **enlaces** (web y Google Maps) ya rellenos; puedes corregir lo que quieras, quitar la foto o añadir el tipo de cocina. También puedes tocar el icono del restaurante en el mapa o, si estás allí, pulsar **Estoy aquí: usar mi ubicación actual** (el móvil pedirá permiso de ubicación la primera vez). Si no aparece en Google Maps, usa **Crear a mano un restaurante nuevo**.
 3. **Tu valoración:** fecha (por defecto hoy), estrellas generales (obligatorias) y, si quieres, estrellas de comida, servicio, ambiente y calidad-precio. Precio por persona y si volveríais.
 4. **Platos:** pulsa **+ Plato** por cada uno, escribe el nombre y puntúalo. Anota la **bebida**.
 5. **Opinión:** lo que os pareció, en tus palabras.
@@ -30,14 +30,14 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 7. Pulsa **Guardar valoración**.
 
 ### Guardar un sitio al que queréis ir (pendientes)
-1. Pulsa **+ Añadir** y, arriba del todo, toca **"¿Todavía no habéis ido? Guárdalo como pendiente"**. También puedes ir a **Sitios → 📌 Pendientes → Añadir pendiente**.
+1. Pulsa **+ Añadir** y arriba elige la pestaña **📌 Quiero ir**. También puedes ir a **Sitios → 📌 Pendientes → Añadir pendiente**.
 2. Busca el restaurante en el buscador de Google Maps de arriba y tócalo para que se rellene todo, o escribe el nombre y la dirección a mano. Añade el tipo de cocina si quieres.
 3. En **Enlaces y notas** añade dónde lo visteis (TikTok, Instagram, una reseña) o la web del restaurante con **+ Enlace**, y una nota de por qué os apetece ("pedir el ramen picante").
 4. Pulsa **Guardar pendiente**. Aparecerá en la pestaña **📌 Pendientes** de Sitios y en el mapa en color morado.
 5. Cuando vayáis, abre el sitio y pulsa **Ya hemos ido: valorar**. Al guardar la valoración pasa solo a **Visitados**.
 
-### Enlaces en cualquier restaurante
-Todos los restaurantes, pendientes o visitados, pueden tener hasta 10 enlaces (web, carta, Instagram, TikTok, Google Maps, la reseña donde lo visteis...). Se añaden al crear el restaurante o después con el lápiz de arriba a la derecha, en **Enlaces y notas**. En la ficha aparecen como botones que abren el enlace en el navegador. Si escribes la dirección sin "https://", la app lo añade sola.
+### Enlaces y foto en cualquier restaurante
+Todos los restaurantes, pendientes o visitados, pueden tener hasta 10 enlaces (web, carta, Instagram, TikTok, Google Maps, la reseña donde lo visteis...). Al elegir el restaurante en Google Maps se añaden solos su web y su enlace de Google Maps, y se coge su foto como portada (en la lista se usa vuestra primera foto si la hay; si no, la de Google). Los demás enlaces se añaden al crear el restaurante o después con el lápiz de arriba a la derecha, en **Enlaces y notas**. En la ficha aparecen como botones que abren el enlace en el navegador. Si escribes la dirección sin "https://", la app lo añade sola.
 
 ### Ver un restaurante
 Toca su tarjeta en **Sitios**. Verás la nota media, la última visita, el precio medio, las notas y los enlaces, el mapa con botones para abrirlo en **Apple Maps** o **Google Maps**, y las valoraciones de cada uno con su nombre y color. Toca una foto para verla en grande.

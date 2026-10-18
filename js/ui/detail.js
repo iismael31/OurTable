@@ -68,6 +68,7 @@ export async function detailView(ctx, [id]) {
 
   mount(ctx.main, html`
     <section class="hero">
+      ${safeUrl(r.cover_url || '') ? html`<img class="hero-cover" src="${safeUrl(r.cover_url)}" alt="">` : ''}
       ${r.want_to_go ? html`<span class="badge badge-wish" style="margin-bottom:8px">📌 Pendiente de visitar</span>` : ''}
       <h2>${r.name}</h2>
       ${sub ? html`<p class="sub">${sub}</p>` : ''}

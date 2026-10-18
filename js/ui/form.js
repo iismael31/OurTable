@@ -4,6 +4,8 @@ import { fetchReview, createRestaurant, createReview, updateReview, uploadPhoto,
 import { processPhoto } from '../image.js';
 import { restaurantFields } from './restaurant-fields.js';
 import { placeSearchBox } from './place-search.js';
+import { enrichPlace } from '../map.js';
+import { addTabs } from './add-tabs.js';
 
 const MAX_PHOTOS = 12;
 const MAX_DISHES = 30;
@@ -32,7 +34,7 @@ export async function formView(ctx, [editId], query) {
 
   ctx.setTopbar(html`
     <button type="button" class="btn-icon" id="back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h1>${review ? 'Editar valoración' : 'Nueva valoración'}</h1>
+    <h1>${review ? 'Editar valoración' : 'Añadir'}</h1>
   `);
   $('#back').addEventListener('click', back);
 
@@ -49,7 +51,7 @@ export async function formView(ctx, [editId], query) {
 
   mount(ctx.main, html`
     <form id="f" novalidate>
-      ${!review && !restaurant ? html`<p class="hint-row"><a href="#/wish">¿Todavía no habéis ido? Guárdalo como pendiente →</a></p>` : ''}
+      ${!review ? addTabs('review') : ''}
       <section class="form-section" id="sec-restaurant"><h2>Restaurante</h2><div id="rest"></div></section>
 
       <section class="form-section">
@@ -142,7 +144,12 @@ export async function formView(ctx, [editId], query) {
       saved: () => ctx.state.restaurants,
       onPick: ({ saved, place }) => {
         if (saved) { restaurant = saved; renderRestaurant(); return; }
-        if (place) { newInitial = { name: place.name, address: place.short, lat: place.lat, lng: place.lng }; creatingNew = true; renderRestaurant(); }
+        if (place) {
+          newInitial = { name: place.name, address: place.short, lat: place.lat, lng: place.lng, place_id: place.id };
+          creatingNew = true;
+          renderRestaurant();
+          enrichPlace(place).then((full) => { if (!rf || full === place) return; rf.applyPlace(full); });
+        }
       },
     });
     box.focus();

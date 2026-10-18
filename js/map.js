@@ -112,25 +112,41 @@ export async function searchPlaces(query, { near = DEFAULT_CENTER } = {}) {
     region: 'es',
   });
   return (places || []).map((p) => ({
+    id: p.id,
     name: p.displayName || '',
     lat: p.location.lat(),
     lng: p.location.lng(),
     label: [p.displayName, p.formattedAddress].filter(Boolean).join(' · '),
-    short: (p.formattedAddress || '').replace(/,\s*\d{5}\b.*$/, '').replace(/,\s*(España|Spain)$/i, ''),
+    short: cleanAddress(p.formattedAddress),
   }));
 }
 
-/** Datos de un sitio de Google a partir de su placeId (al tocar un icono del mapa). */
+const cleanAddress = (a) => (a || '').replace(/,\s*\d{5}\b.*$/, '').replace(/,\s*(España|Spain)$/i, '');
+
+/** Detalles de un sitio (nombre, dirección, ubicación, web, enlace a Google Maps y foto).
+ *  Cuenta como "Place Details Enterprise" (por la web): solo se llama al elegir un sitio. */
 export async function placeById(placeId) {
   const gm = await loadGoogleMaps();
   const { Place } = await gm.importLibrary('places');
   const place = new Place({ id: placeId });
-  await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+  await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location', 'websiteURI', 'googleMapsURI', 'photos'] });
+  let photoUrl = '';
+  try { photoUrl = place.photos?.[0]?.getURI({ maxWidth: 1000, maxHeight: 1000 }) || ''; } catch { /* sin foto */ }
   return {
+    id: placeId,
     name: place.displayName || '',
     lat: place.location?.lat(), lng: place.location?.lng(),
-    short: (place.formattedAddress || '').replace(/,\s*\d{5}\b.*$/, '').replace(/,\s*(España|Spain)$/i, ''),
+    short: cleanAddress(place.formattedAddress),
+    website: place.websiteURI || '',
+    mapsUrl: place.googleMapsURI || '',
+    photoUrl,
   };
+}
+
+/** Completa un resultado de búsqueda con sus detalles; si falla, devuelve el resultado tal cual. */
+export async function enrichPlace(place) {
+  if (!place?.id) return place;
+  try { return { ...place, ...(await placeById(place.id)) }; } catch { return place; }
 }
 
 export async function reverseGeocode(lat, lng) {

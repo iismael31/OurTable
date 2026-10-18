@@ -56,6 +56,7 @@ js/ui/form.js            Alta/edición de valoración (restaurante, estrellas, p
 js/ui/wish.js            Alta de un sitio pendiente de visitar (enlaces y notas)
 js/ui/restaurant-fields.js  Campos de restaurante reutilizables (buscador Google Maps, nombre, cocina, dirección, mapa, enlaces, notas)
 js/ui/place-search.js    Buscador con sugerencias al escribir: sitios guardados + Places Text Search (debounce 550 ms, mínimo 3 letras, descarta respuestas tardías)
+js/ui/add-tabs.js        Pestañas de la pantalla Añadir (Nueva valoración / Quiero ir)
 js/ui/restaurant-form.js Edición/borrado del restaurante
 js/ui/map-view.js        Mapa general con pines por nota
 js/ui/stats.js           Resumen estadístico
@@ -73,7 +74,7 @@ GUIA-DE-USO.md           Guía no técnica
 | `SUPABASE_URL` | `js/config.js` | URL del proyecto | Sí | `https://abcd1234.supabase.co` |
 | `SUPABASE_ANON_KEY` | `js/config.js` | Clave pública *publishable* `sb_publishable_...` (o la antigua *anon* `eyJ...`) | Sí | `sb_publishable_abc...` |
 | `GOOGLE_MAPS_API_KEY` | `js/config.js` | Clave de Google Maps Platform (pública, restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
-| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.3.0` |
+| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.4.0` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Secretos de GitHub Actions | Para el keep-alive | Recomendado | — |
 | `VERSION` | `sw.js` | Cambiarla invalida la caché de la app | — | `v1.0.1` |
 
@@ -95,7 +96,7 @@ Acceso vía PostgREST (supabase-js). Tablas en `public`:
 
 **profiles** — `id uuid PK → auth.users`, `display_name text(1–40)`, `color text (#rrggbb)`, `created_at`. Se crea por trigger al dar de alta un usuario. Ser miembro = tener perfil (`is_member()`).
 
-**restaurants** — `id uuid`, `name text(1–120)`, `cuisine text(≤60)`, `address text(≤240)`, `lat/lng double` (ambos o ninguno), `want_to_go bool` (pendiente de visitar), `notes text(≤1000)`, `links jsonb` (array ≤10 de `{label, url}`; solo se renderizan URLs http/https tras pasar por `safeUrl`), `created_by → profiles`, `created_at`, `updated_at` (trigger). Trigger `reviews_mark_visited`: al insertar la primera valoración, `want_to_go` pasa a `false`.
+**restaurants** — `id uuid`, `name text(1–120)`, `cuisine text(≤60)`, `address text(≤240)`, `lat/lng double` (ambos o ninguno), `want_to_go bool` (pendiente de visitar), `notes text(≤1000)`, `links jsonb` (array ≤10 de `{label, url}`; solo se renderizan URLs http/https tras pasar por `safeUrl`), `place_id text(≤200)` (id del sitio en Google), `cover_url text(≤1000, https)` (foto del sitio devuelta por Google Places), `created_by → profiles`, `created_at`, `updated_at` (trigger). Trigger `reviews_mark_visited`: al insertar la primera valoración, `want_to_go` pasa a `false`.
 
 **reviews** — `id uuid`, `restaurant_id → restaurants (cascade)`, `author_id → profiles`, `visit_date date`, `rating smallint 1–5` (obligatorio), `rating_food/service/ambience/value smallint 1–5`, `price_per_person numeric(7,2) 0–10000`, `dishes jsonb` (array ≤30 de `{name, rating}`), `drinks text(≤500)`, `comment text(≤4000)`, `would_return bool`, `photos jsonb` (array ≤12 de `{path, thumb, w, h}`), `created_at`, `updated_at`.
 
@@ -126,7 +127,8 @@ Realtime: publicación `supabase_realtime` incluye `restaurants` y `reviews` (re
 
 ## 9. Decisiones de optimización
 - Resúmenes (media, nº visitas, última visita, portada) calculados en cliente a partir de una consulta "ligera" de reviews (sin `comment` ni `dishes`); evita una vista/RPC y N+1.
-- Buscador de sitios con debounce de 550 ms y mínimo 3 letras: unas 2–4 llamadas a Text Search por restaurante; la cuota diaria de 100 lo cubre de sobra.
+- Buscador de sitios con debounce de 550 ms y mínimo 3 letras: unas 2–4 llamadas a Text Search (Pro) por restaurante. Al elegir uno, una única llamada a Place Details con `websiteURI` (tarifa Enterprise, 1.000 gratis/mes → cuota 30/día) que trae web, enlace de Google Maps y foto; la URL de la foto se guarda en `cover_url` para no volver a consultar a Google al pintar listas.
+- Nota de política: Google pide no almacenar su contenido más de 30 días salvo `place_id` y coordenadas; `cover_url` se guarda para evitar costes por cada render. Para un uso privado de dos personas el riesgo es nulo; si la URL caduca, la portada pasa a ser la primera foto propia.
 - Carga perezosa de Google Maps solo en vistas con mapa; cada `new google.maps.Map` cuenta como un *map load*, por eso el minimapa de la ficha es estático (sin gestos) y el mapa general reutiliza marcadores al refrescar.
 - Fotos: dos tamaños (miniatura para listas, completa para el lightbox); URLs firmadas cacheadas en memoria y pedidas en lote.
 - Service worker: precaché de la carcasa (abre al instante); todos los archivos, incluida la página, se sirven de la caché de la versión instalada para no mezclar versiones; la nueva se instala en segundo plano y la app se recarga sola al activarse (o avisa si hay un formulario abierto). Nunca cachea datos ni mapas.

@@ -6,6 +6,13 @@
 
 ## Pendientes
 
+- [ ] 🔴 [funcionalidad] Ejecutar en Supabase (SQL Editor) las dos líneas `alter table public.restaurants add column if not exists place_id ...` y `... cover_url ...` de `supabase/schema.sql` (o el esquema completo, que es idempotente).
+      Justificación: sin esas columnas, guardar un restaurante elegido en Google Maps falla.
+
+- [ ] 🔴 [seguridad] Ajustar cuotas en Google Cloud: Places API (New) → *GetPlaceRequest per day* = **30** (ahora pide la web: tarifa Enterprise, 1.000 gratis/mes) y *GetPhotoMediaRequest per day* = **100**.
+      Justificación: mantener el uso por debajo del gratuito con los nuevos campos.
+
+
 - [ ] 🟡 [seguridad] Borrar en Google Cloud la clave antigua `AIzaSyCK...` (suspendida y ya sustituida) en Google Maps Platform → Claves y credenciales.
       Justificación: una clave sin uso es superficie de riesgo innecesaria.
 

@@ -2,17 +2,19 @@
 import { $, html, mount, toast, friendlyError } from '../dom.js';
 import { createRestaurant } from '../db.js';
 import { restaurantFields } from './restaurant-fields.js';
+import { addTabs } from './add-tabs.js';
 
 export function wishView(ctx) {
   const back = () => (history.length > 1 ? history.back() : ctx.navigate('#/'));
   ctx.setTopbar(html`
     <button type="button" class="btn-icon" id="back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h1>Sitio pendiente</h1>
+    <h1>Añadir</h1>
   `);
   $('#back').addEventListener('click', back);
 
   mount(ctx.main, html`
     <form id="f" novalidate>
+      ${addTabs('wish')}
       <p class="help" style="margin-bottom:12px">Un restaurante al que queréis ir. Guarda dónde lo visteis y por qué os llamó la atención; cuando vayáis, le añadís la valoración y pasa a visitados.</p>
       <section class="form-section"><div id="rf"></div></section>
       <div class="form-actions">
