@@ -1,7 +1,8 @@
 // Campos de un restaurante (nombre, cocina, dirección, ubicación en mapa, enlaces y notas).
 // Lo usan el formulario de valoración, el de sitio pendiente y la edición del restaurante.
 import { $, $$, html, mount, raw, toast, friendlyError, normalizeUrl, linkHost } from '../dom.js';
-import { createMap, pin, searchPlaces, placeById, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
+import { createMap, pin, placeById, reverseGeocode, getPosition, DEFAULT_CENTER } from '../map.js';
+import { placeSearchBox } from './place-search.js';
 
 export const CUISINES = [
   'Española', 'Tapas', 'Asador', 'Marisquería', 'Arrocería', 'Mediterránea', 'Italiana', 'Pizzería',
@@ -28,6 +29,11 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
 
   mount(container, html`
     <div class="field">
+      <span class="label">Buscar en Google Maps</span>
+      <div id="rf-search"></div>
+      <p class="help">Escribe el nombre del restaurante y elígelo de la lista: se rellenan el nombre, la dirección y el punto en el mapa.</p>
+    </div>
+    <div class="field">
       <label for="rf-name">Nombre del restaurante *</label>
       <input class="input" id="rf-name" maxlength="120" autocomplete="off" value="${v.name}" placeholder="Ej. Casa Lucio">
     </div>
@@ -38,12 +44,8 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     </div>
     <div class="field">
       <label for="rf-address">Dirección</label>
-      <div class="input-row">
-        <input class="input" id="rf-address" maxlength="240" autocomplete="off" value="${v.address}" placeholder="Calle, número, ciudad">
-        <button type="button" class="btn btn-sm" id="rf-geocode">Buscar</button>
-      </div>
-      <ul class="geo-results" id="rf-results" hidden></ul>
-      <p class="help">Busca por nombre del restaurante o dirección, o toca su icono en el mapa. Si estás en el restaurante, usa tu ubicación actual.</p>
+      <input class="input" id="rf-address" maxlength="240" autocomplete="off" value="${v.address}" placeholder="Calle, número, ciudad">
+      <p class="help">También puedes tocar el icono del restaurante en el mapa o, si estás allí, usar tu ubicación actual.</p>
     </div>
     <button type="button" class="btn btn-soft btn-block" id="rf-locate">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
@@ -72,7 +74,6 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
   const nameEl = $('#rf-name', container);
   const cuisineEl = $('#rf-cuisine', container);
   const addressEl = $('#rf-address', container);
-  const results = $('#rf-results', container);
   const coordsEl = $('#rf-coords', container);
   const clearBtn = $('#rf-clear', container);
 
@@ -132,12 +133,18 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
     }
   }
 
-  async function fillFromPlace(place) {
+  function fillFromPlace(place, { overwrite = false } = {}) {
     if (place.lat == null) return;
     setPoint(place.lat, place.lng);
-    if (place.short && !addressEl.value.trim()) addressEl.value = place.short.slice(0, 240);
-    if (place.name && !nameEl.value.trim()) nameEl.value = place.name.slice(0, 120);
+    if (place.short && (overwrite || !addressEl.value.trim())) addressEl.value = place.short.slice(0, 240);
+    if (place.name && (overwrite || !nameEl.value.trim())) nameEl.value = place.name.slice(0, 120);
   }
+
+  const searchBox = placeSearchBox($('#rf-search', container), {
+    placeholder: 'Nombre del restaurante (ej. Casa Lucio)',
+    near: () => (map ? { lat: map.getCenter().lat(), lng: map.getCenter().lng() } : DEFAULT_CENTER),
+    onPick: ({ place }) => { if (place) { fillFromPlace(place, { overwrite: true }); searchBox.clear(); } },
+  });
 
   createMap($('#rf-map', container), {
     center: hasPoint() ? { lat: v.lat, lng: v.lng } : DEFAULT_CENTER,
@@ -151,7 +158,7 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
       if (e.placeId) {
         // Icono de un negocio en el mapa: coger nombre y dirección de Google
         e.stop();
-        try { await fillFromPlace(await placeById(e.placeId)); } catch { setPoint(e.latLng.lat(), e.latLng.lng(), { pan: false }); }
+        try { fillFromPlace(await placeById(e.placeId)); } catch { setPoint(e.latLng.lat(), e.latLng.lng(), { pan: false }); }
         return;
       }
       setPoint(e.latLng.lat(), e.latLng.lng(), { pan: false });
@@ -159,35 +166,8 @@ export function restaurantFields(container, initial = {}, { extrasOpen = false }
         try { addressEl.value = (await reverseGeocode(e.latLng.lat(), e.latLng.lng())).slice(0, 240); } catch { /* opcional */ }
       }
     });
-  }).catch((err) => toast(err.message || friendlyError(err), 'error'));
+  }).catch((err) => toast(friendlyError(err), 'error'));
 
-  async function search() {
-    const q = addressEl.value.trim() || nameEl.value.trim();
-    if (!q) return toast('Escribe el nombre del sitio o una dirección', 'error');
-    const btn = $('#rf-geocode', container);
-    btn.disabled = true;
-    try {
-      const near = map ? { lat: map.getCenter().lat(), lng: map.getCenter().lng() } : DEFAULT_CENTER;
-      const found = await searchPlaces(q, { near });
-      if (!found.length) { toast('No se ha encontrado nada con ese texto'); results.hidden = true; return; }
-      mount(results, html`${found.map((f, i) => html`<li><button type="button" data-i="${i}">${f.label}</button></li>`)}`);
-      results.hidden = false;
-      results.onclick = (e) => {
-        const b = e.target.closest('button[data-i]');
-        if (!b) return;
-        fillFromPlace(found[Number(b.dataset.i)]);
-        results.hidden = true;
-      };
-    } catch (err) {
-      toast(err.message || friendlyError(err), 'error');
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  $('#rf-geocode', container).addEventListener('click', search);
-  addressEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
-  nameEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
   clearBtn.addEventListener('click', () => { v.lat = null; v.lng = null; paintPoint(); });
   $('#rf-locate', container).addEventListener('click', async (e) => {
     const btn = e.currentTarget;

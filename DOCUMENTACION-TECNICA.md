@@ -54,7 +54,8 @@ js/ui/list.js            Lista con búsqueda, orden y filtro
 js/ui/detail.js          Ficha del restaurante, minimapa y valoraciones (editar/borrar propias)
 js/ui/form.js            Alta/edición de valoración (restaurante, estrellas, platos, fotos)
 js/ui/wish.js            Alta de un sitio pendiente de visitar (enlaces y notas)
-js/ui/restaurant-fields.js  Campos de restaurante reutilizables (nombre, cocina, dirección, mapa, enlaces, notas)
+js/ui/restaurant-fields.js  Campos de restaurante reutilizables (buscador Google Maps, nombre, cocina, dirección, mapa, enlaces, notas)
+js/ui/place-search.js    Buscador con sugerencias al escribir: sitios guardados + Places Text Search (debounce 550 ms, mínimo 3 letras, descarta respuestas tardías)
 js/ui/restaurant-form.js Edición/borrado del restaurante
 js/ui/map-view.js        Mapa general con pines por nota
 js/ui/stats.js           Resumen estadístico
@@ -72,7 +73,7 @@ GUIA-DE-USO.md           Guía no técnica
 | `SUPABASE_URL` | `js/config.js` | URL del proyecto | Sí | `https://abcd1234.supabase.co` |
 | `SUPABASE_ANON_KEY` | `js/config.js` | Clave pública *publishable* `sb_publishable_...` (o la antigua *anon* `eyJ...`) | Sí | `sb_publishable_abc...` |
 | `GOOGLE_MAPS_API_KEY` | `js/config.js` | Clave de Google Maps Platform (pública, restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
-| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.2.0` |
+| `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.3.0` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Secretos de GitHub Actions | Para el keep-alive | Recomendado | — |
 | `VERSION` | `sw.js` | Cambiarla invalida la caché de la app | — | `v1.0.1` |
 
@@ -125,6 +126,7 @@ Realtime: publicación `supabase_realtime` incluye `restaurants` y `reviews` (re
 
 ## 9. Decisiones de optimización
 - Resúmenes (media, nº visitas, última visita, portada) calculados en cliente a partir de una consulta "ligera" de reviews (sin `comment` ni `dishes`); evita una vista/RPC y N+1.
+- Buscador de sitios con debounce de 550 ms y mínimo 3 letras: unas 2–4 llamadas a Text Search por restaurante; la cuota diaria de 100 lo cubre de sobra.
 - Carga perezosa de Google Maps solo en vistas con mapa; cada `new google.maps.Map` cuenta como un *map load*, por eso el minimapa de la ficha es estático (sin gestos) y el mapa general reutiliza marcadores al refrescar.
 - Fotos: dos tamaños (miniatura para listas, completa para el lightbox); URLs firmadas cacheadas en memoria y pedidas en lote.
 - Service worker: precaché de la carcasa (abre al instante); todos los archivos, incluida la página, se sirven de la caché de la versión instalada para no mezclar versiones; la nueva se instala en segundo plano y la app se recarga sola al activarse (o avisa si hay un formulario abierto). Nunca cachea datos ni mapas.

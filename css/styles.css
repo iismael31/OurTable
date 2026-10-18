@@ -375,3 +375,8 @@ html[data-theme="dark"] .badge-wish { color: #b197fc; }
 .hint-row { display: flex; justify-content: center; margin: -4px 0 14px; }
 .hint-row a { font-size: 14px; font-weight: 600; }
 @media (max-width: 480px) { .link-row { grid-template-columns: 1fr auto; } .link-row input[data-url] { grid-column: 1 / -1; grid-row: 2; } .link-row button { grid-column: 2; grid-row: 1; } }
+
+/* Buscador de sitios */
+.geo-results .geo-head { padding: 8px 12px 4px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; background: var(--surface-2); }
+.geo-results li button { display: flex; flex-direction: column; gap: 2px; }
+.geo-results li button .help { font-size: 12px; }

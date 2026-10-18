@@ -1,6 +1,6 @@
 /* Service worker de OurTable: cachea la "carcasa" de la app para que abra al instante
    y funcione sin red en lo que no depende de Supabase. */
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const SHELL = `shell-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -25,6 +25,7 @@ const PRECACHE = [
   './js/ui/form.js',
   './js/ui/restaurant-fields.js',
   './js/ui/wish.js',
+  './js/ui/place-search.js',
   './js/ui/restaurant-form.js',
   './js/ui/map-view.js',
   './js/ui/stats.js',

@@ -22,7 +22,7 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 
 ### Añadir una valoración
 1. Pulsa el botón redondo **+ Añadir** de la barra inferior.
-2. **Restaurante:** si ya existe, búscalo por nombre y tócalo. Si es nuevo, pulsa **Crear restaurante nuevo** y escribe el nombre. Para la ubicación tienes tres formas: pulsa **Buscar** y la app encontrará el restaurante en Google Maps por su nombre (rellena sola la dirección y el punto); toca el icono del restaurante directamente en el mapa; o, si estás allí, pulsa **Estoy aquí: usar mi ubicación actual** (el móvil te pedirá permiso de ubicación la primera vez).
+2. **Restaurante:** escribe su nombre en el buscador. Mientras escribes salen primero los sitios que ya tenéis guardados y, debajo, los resultados de Google Maps. Toca el que sea: si estaba guardado, queda elegido; si es de Google Maps, se abre el alta con el nombre, la dirección y el punto en el mapa ya rellenos (puedes corregir lo que quieras y añadir el tipo de cocina). También puedes tocar el icono del restaurante en el mapa o, si estás allí, pulsar **Estoy aquí: usar mi ubicación actual** (el móvil pedirá permiso de ubicación la primera vez). Si no aparece en Google Maps, usa **Crear a mano un restaurante nuevo**.
 3. **Tu valoración:** fecha (por defecto hoy), estrellas generales (obligatorias) y, si quieres, estrellas de comida, servicio, ambiente y calidad-precio. Precio por persona y si volveríais.
 4. **Platos:** pulsa **+ Plato** por cada uno, escribe el nombre y puntúalo. Anota la **bebida**.
 5. **Opinión:** lo que os pareció, en tus palabras.
@@ -31,7 +31,7 @@ Ejemplo: cenáis en una pizzería nueva. Al salir, abres la app, pulsas **Añadi
 
 ### Guardar un sitio al que queréis ir (pendientes)
 1. Pulsa **+ Añadir** y, arriba del todo, toca **"¿Todavía no habéis ido? Guárdalo como pendiente"**. También puedes ir a **Sitios → 📌 Pendientes → Añadir pendiente**.
-2. Escribe el nombre, el tipo de cocina y, si quieres, la dirección o el punto en el mapa.
+2. Busca el restaurante en el buscador de Google Maps de arriba y tócalo para que se rellene todo, o escribe el nombre y la dirección a mano. Añade el tipo de cocina si quieres.
 3. En **Enlaces y notas** añade dónde lo visteis (TikTok, Instagram, una reseña) o la web del restaurante con **+ Enlace**, y una nota de por qué os apetece ("pedir el ramen picante").
 4. Pulsa **Guardar pendiente**. Aparecerá en la pestaña **📌 Pendientes** de Sitios y en el mapa en color morado.
 5. Cuando vayáis, abre el sitio y pulsa **Ya hemos ido: valorar**. Al guardar la valoración pasa solo a **Visitados**.

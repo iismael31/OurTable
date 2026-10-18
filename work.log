@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-10-18 17:00 — Buscador de restaurantes en Google Maps al escribir (v1.3.0)
+
+Tipo: cambio
+
+Qué se hizo:
+Petición del usuario: al dar de alta un restaurante, buscarlo directamente en Google Maps y elegirlo de una lista. Nuevo componente `js/ui/place-search.js` (sugerencias al escribir con debounce de 550 ms, mínimo 3 letras, control de respuestas tardías; muestra primero los sitios guardados si se le pasan y debajo los de Places Text Search). Integrado en `restaurant-fields.js` (arriba del todo; al elegir rellena nombre, dirección y punto, y centra el mapa; desaparece el botón "Buscar" de la dirección) y en el selector de restaurante del formulario de valoración (`form.js`: guardados + Google en la misma lista; elegir uno de Google abre el alta ya rellena; botón "Crear a mano" para el resto). Sigue disponible tocar un icono de negocio en el mapa. Versión 1.3.0. Guía y documentación técnica actualizadas.
+
+Archivos / recursos afectados:
+- js/ui/place-search.js (nuevo), js/ui/restaurant-fields.js, js/ui/form.js, css/styles.css, sw.js, js/config.js, GUIA-DE-USO.md, DOCUMENTACION-TECNICA.md
+
+Verificación:
+Navegador local con mock de Supabase (puerto distinto para evitar la caché HTTP): en "Nueva valoración", al escribir "casa" aparece la sección "Ya guardados" con Casa Lucio y la sección Google Maps (en local marcada "no disponible" porque la clave solo admite GitHub Pages; el error de Google se muestra ahora con un mensaje amable); elegir el guardado lo deja seleccionado. La parte de Google se verifica sobre la web publicada tras el push. `js/supabase.js` real restaurado al terminar.
+
+---
+
 ## 2026-10-18 15:10 — Google Maps reactivado (v1.2.0)
 
 Tipo: cambio

@@ -136,6 +136,7 @@ const FRIENDLY = [
   [/row-level security|permission denied|not allowed/i, 'No tienes permiso para hacer esto.'],
   [/payload too large|exceeded the maximum allowed size/i, 'La foto es demasiado grande.'],
   [/violates check constraint/i, 'Alguno de los datos no es válido (demasiado largo o fuera de rango).'],
+  [/referer|PERMISSION_DENIED|REQUEST_DENIED|ApiNotActivated|has been suspended/i, 'Google Maps no está disponible en este momento.'],
 ];
 export function friendlyError(err) {
   const msg = err?.message || String(err || '');

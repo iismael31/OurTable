@@ -1,8 +1,9 @@
 // Formulario de nueva valoración / edición de una valoración propia.
-import { $, $$, html, mount, raw, starInput, todayISO, toast, friendlyError, debounce } from '../dom.js';
+import { $, $$, html, mount, raw, starInput, todayISO, toast, friendlyError } from '../dom.js';
 import { fetchReview, createRestaurant, createReview, updateReview, uploadPhoto, removePhotos, signedUrls } from '../db.js';
 import { processPhoto } from '../image.js';
 import { restaurantFields } from './restaurant-fields.js';
+import { placeSearchBox } from './place-search.js';
 
 const MAX_PHOTOS = 12;
 const MAX_DISHES = 30;
@@ -12,7 +13,6 @@ const SUB = [
   ['rating_ambience', 'Ambiente'],
   ['rating_value', 'Calidad-precio'],
 ];
-const norm = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 export async function formView(ctx, [editId], query) {
   const back = () => history.length > 1 ? history.back() : ctx.navigate('#/');
@@ -39,6 +39,7 @@ export async function formView(ctx, [editId], query) {
   // ---------- Estado del formulario ----------
   let restaurant = ctx.state.restaurants.find((r) => r.id === (review?.restaurant_id || query.r)) || null;
   let creatingNew = false;
+  let newInitial = {}; // datos con los que arranca el alta (p. ej. elegido en Google Maps)
   let rf = null; // componente de campos del restaurante
   const dishes = (review?.dishes || []).map((d) => ({ name: d.name || '', rating: Number(d.rating) || 0 }));
   const existing = [...(review?.photos || [])];
@@ -127,35 +128,26 @@ export async function formView(ctx, [editId], query) {
     }
     if (creatingNew) {
       mount(restBox, html`<div id="rf"></div><button type="button" class="btn btn-sm btn-ghost" id="pick-existing" style="margin-top:8px">← Elegir uno existente</button>`);
-      rf = restaurantFields($('#rf', restBox));
+      rf = restaurantFields($('#rf', restBox), newInitial);
       $('#pick-existing', restBox).addEventListener('click', () => { creatingNew = false; renderRestaurant(); });
       return;
     }
     mount(restBox, html`
-      <div class="search">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input class="input" id="rest-q" type="search" placeholder="Buscar un sitio ya guardado" autocomplete="off">
-      </div>
-      <ul class="geo-results" id="rest-results" hidden></ul>
-      <button type="button" class="btn btn-block" id="new-rest" style="margin-top:10px">+ Crear restaurante nuevo</button>
+      <div id="rest-search"></div>
+      <p class="help">Escribe el nombre: primero salen los sitios que ya tenéis guardados y debajo los de Google Maps.</p>
+      <button type="button" class="btn btn-block btn-ghost" id="new-rest" style="margin-top:10px">+ Crear a mano un restaurante nuevo</button>
     `);
-    const results = $('#rest-results', restBox);
-    const paintResults = (q) => {
-      const n = norm(q);
-      const found = n ? ctx.state.restaurants.filter((r) => norm(`${r.name} ${r.cuisine || ''} ${r.address || ''}`).includes(n)).slice(0, 8) : ctx.state.restaurants.slice(0, 8);
-      results.hidden = !found.length;
-      mount(results, html`${found.map((r) => html`<li><button type="button" data-id="${r.id}"><strong>${r.name}</strong>${r.address ? html` <span class="help">· ${r.address}</span>` : ''}</button></li>`)}`);
-    };
-    const input = $('#rest-q', restBox);
-    input.addEventListener('input', debounce((e) => paintResults(e.target.value), 120));
-    input.addEventListener('focus', () => paintResults(input.value));
-    results.addEventListener('click', (e) => {
-      const b = e.target.closest('button[data-id]');
-      if (!b) return;
-      restaurant = ctx.state.restaurants.find((r) => r.id === b.dataset.id) || null;
-      renderRestaurant();
+    const box = placeSearchBox($('#rest-search', restBox), {
+      placeholder: 'Buscar restaurante',
+      saved: () => ctx.state.restaurants,
+      onPick: ({ saved, place }) => {
+        if (saved) { restaurant = saved; renderRestaurant(); return; }
+        if (place) { newInitial = { name: place.name, address: place.short, lat: place.lat, lng: place.lng }; creatingNew = true; renderRestaurant(); }
+      },
     });
+    box.focus();
     $('#new-rest', restBox).addEventListener('click', () => {
+      newInitial = {};
       creatingNew = true;
       renderRestaurant();
       $('#rf-name', restBox)?.focus();
