@@ -30,12 +30,12 @@ Google exige una cuenta de facturación con tarjeta aunque el uso sea gratuito (
    - *Restricciones de API*: **Restringir clave** → marca solo las tres APIs anteriores.
 4. **Google Maps Platform → Cuotas**: pon límites **por día**: Maps JavaScript API *Map loads* = 300; Geocoding *v3 requests* = 100; Places API (New) *SearchTextRequest* = 100, *GetPlaceRequest* = 30 (devuelve la web del restaurante, tarifa Enterprise con 1.000 gratis/mes) y *GetPhotoMediaRequest* = 100. (300 × 31 = 9.300 < 10.000 gratis; 30 × 31 = 930 < 1.000.)
 5. **Facturación → Presupuestos y alertas**: crea un presupuesto de 1 € con aviso por email (informativo).
-6. Pega la clave en `js/config.js` → `GOOGLE_MAPS_API_KEY`.
+6. La clave **no se escribe en el código**: guárdala en GitHub como secreto `GOOGLE_MAPS_API_KEY` (paso 3). El flujo de publicación la inserta en `js/config.js` al desplegar.
 
 ### 3. GitHub Pages (publicación)
-1. Crea un repositorio en GitHub (puede ser privado) y sube esta carpeta.
-2. En **Settings → Pages**, elige **Deploy from a branch**, rama `main`, carpeta `/ (root)`. En un minuto tendrás una URL del tipo `https://TU_USUARIO.github.io/NOMBRE_REPO/`.
-3. En **Settings → Secrets and variables → Actions**, añade los secretos `SUPABASE_URL` y `SUPABASE_ANON_KEY` (mismos valores que en `js/config.js`). Sirven para la tarea automática que evita que el proyecto gratuito de Supabase se pause por inactividad.
+1. Crea un repositorio público en GitHub y sube esta carpeta.
+2. En **Settings → Secrets and variables → Actions**, añade los secretos `GOOGLE_MAPS_API_KEY` (la clave de Google Maps), `SUPABASE_URL` y `SUPABASE_ANON_KEY` (los dos últimos sirven para la tarea que evita que el proyecto gratuito de Supabase se pause).
+3. En **Settings → Pages → Source**, elige **GitHub Actions**. Cada `git push` a `main` ejecuta `.github/workflows/deploy-pages.yml`, que inserta la clave y publica en `https://TU_USUARIO.github.io/NOMBRE_REPO/`.
 4. Vuelve a Supabase → **Authentication → URL Configuration** y pon la URL de GitHub Pages como **Site URL** y en **Redirect URLs** (necesario para el enlace de "olvidé mi contraseña").
 
 ### 4. En los móviles

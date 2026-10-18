@@ -1,0 +1,57 @@
+# Publica la app en GitHub Pages insertando la clave de Google Maps desde un
+# secreto del repositorio, para que la clave no viva en el código.
+# Requisitos: Settings → Pages → Source = "GitHub Actions";
+#             Settings → Secrets and variables → Actions → GOOGLE_MAPS_API_KEY.
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Insertar la clave de Google Maps
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GOOGLE_MAPS_API_KEY" ]; then
+            echo "::error::Falta el secreto GOOGLE_MAPS_API_KEY"; exit 1
+          fi
+          case "$GOOGLE_MAPS_API_KEY" in AIza*) ;; *) echo "::error::El secreto no parece una clave de Google (AIza...)"; exit 1;; esac
+          grep -q "__GOOGLE_MAPS_API_KEY__" js/config.js || { echo "::error::No se encontró el marcador en js/config.js"; exit 1; }
+          sed -i "s#__GOOGLE_MAPS_API_KEY__#${GOOGLE_MAPS_API_KEY}#" js/config.js
+          mkdir -p _site
+          # Solo lo que necesita la web (sin .git, workflows ni documentación)
+          cp -r index.html manifest.webmanifest sw.js css js assets _site/
+          test -f _site/js/config.js
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

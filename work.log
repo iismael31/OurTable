@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-10-18 19:40 — Clave de Google Maps fuera del repositorio (despliegue por GitHub Actions)
+
+Tipo: seguridad | cambio
+
+Qué se hizo:
+GitHub avisó por *Secret scanning* de las dos claves de Google en `js/config.js` (commits públicos). Aunque una clave de Maps para web es inevitablemente visible en el navegador y está protegida por restricciones de dominio y cuotas, se saca del código: `js/config.js` lleva el marcador `__GOOGLE_MAPS_API_KEY__` y el nuevo workflow `.github/workflows/deploy-pages.yml` lo sustituye con el secreto `GOOGLE_MAPS_API_KEY` al publicar (artefacto con solo los archivos de la app → `actions/deploy-pages`). `isMapsConfigured` exige formato `AIza...`. README y documentación técnica actualizados. Pendiente del usuario: crear clave nueva, guardar el secreto, cambiar el origen de Pages a GitHub Actions, borrar las claves antiguas y cerrar las alertas.
+
+Archivos / recursos afectados:
+- .github/workflows/deploy-pages.yml (nuevo), js/config.js, js/map.js, README.md, DOCUMENTACION-TECNICA.md, to-do.md
+
+---
+
 ## 2026-10-18 19:00 — Foto y enlaces automáticos desde Google Maps; pestañas en Añadir (v1.4.0)
 
 Tipo: cambio

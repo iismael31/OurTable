@@ -10,7 +10,7 @@ PWA para dos usuarios (pareja) que registran valoraciones de restaurantes con fo
 | UI | HTML5 + CSS (custom properties, `color-mix`) | — | Tema claro/oscuro por `data-theme` en `<html>` |
 | Backend | Supabase (Postgres 15, PostgREST, GoTrue, Storage, Realtime) | supabase-js 2.118.0 | Cargado por ESM desde jsDelivr; versión fijada (soporta claves publishable) |
 | Mapas | Google Maps Platform (Maps JavaScript API, Places API (New), Geocoding API) | `v=weekly` | Carga perezosa; clave pública restringida por dominio y con cuotas diarias |
-| Hosting | GitHub Pages | — | Rutas relativas (funciona bajo subcarpeta) |
+| Hosting | GitHub Pages (despliegue por GitHub Actions) | actions/deploy-pages v4 | Rutas relativas; el workflow inserta la clave de Maps desde un secreto |
 | Automatización | GitHub Actions | — | `keepalive.yml` cada 3 días |
 | Dev local | `python3 -m http.server` | 3.9+ | Cualquier servidor estático sirve |
 
@@ -64,6 +64,7 @@ js/ui/settings.js        Tema, perfil, contraseña, instalación, salir
 assets/icons/            Icono PNG (192, 512, 512 maskable, apple-touch 180) a partir del diseño del usuario
 supabase/schema.sql      Esquema completo e idempotente (tablas, RLS, realtime, bucket)
 .github/workflows/keepalive.yml  Ping cada 3 días para evitar la pausa del plan gratuito
+.github/workflows/deploy-pages.yml  Publicación en Pages insertando GOOGLE_MAPS_API_KEY desde un secreto
 to-do.md · work.log      Seguimiento del proyecto
 GUIA-DE-USO.md           Guía no técnica
 ```
@@ -73,7 +74,7 @@ GUIA-DE-USO.md           Guía no técnica
 |----------|-------|-------------|-------------|----------------------|
 | `SUPABASE_URL` | `js/config.js` | URL del proyecto | Sí | `https://abcd1234.supabase.co` |
 | `SUPABASE_ANON_KEY` | `js/config.js` | Clave pública *publishable* `sb_publishable_...` (o la antigua *anon* `eyJ...`) | Sí | `sb_publishable_abc...` |
-| `GOOGLE_MAPS_API_KEY` | `js/config.js` | Clave de Google Maps Platform (pública, restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
+| `GOOGLE_MAPS_API_KEY` | Secreto de GitHub Actions → insertado en `js/config.js` al publicar (marcador `__GOOGLE_MAPS_API_KEY__` en el repo) | Clave de Google Maps Platform (viaja al navegador: restringida por referrer y por API, con cuotas diarias) | Sí (mapas) | `AIza...` |
 | `APP_VERSION` | `js/config.js` | Versión mostrada en Ajustes | No | `1.4.0` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Secretos de GitHub Actions | Para el keep-alive | Recomendado | — |
 | `VERSION` | `sw.js` | Cambiarla invalida la caché de la app | — | `v1.0.1` |
@@ -87,7 +88,7 @@ GUIA-DE-USO.md           Guía no técnica
 
 **Supabase:** ejecutar `supabase/schema.sql`; desactivar registro público; crear los dos usuarios con *Auto Confirm*; configurar *Site URL* / *Redirect URLs* con la URL de GitHub Pages.
 
-**GitHub Pages:** subir el repositorio, *Settings → Pages → Deploy from a branch* (`main`, `/`). Añadir los secretos para `keepalive.yml`. Cada `git push` republica.
+**GitHub Pages:** subir el repositorio, añadir los secretos `GOOGLE_MAPS_API_KEY`, `SUPABASE_URL` y `SUPABASE_ANON_KEY`, y poner *Settings → Pages → Source = GitHub Actions*. Cada `git push` a `main` ejecuta `deploy-pages.yml` (inserta la clave y publica solo los archivos de la app) y `keepalive.yml` sigue su cron.
 
 **Actualizaciones:** al cambiar archivos de la app, subir la `VERSION` de `sw.js` para que los clientes instalados refresquen la caché; la app se recarga sola al activarse la versión nueva (o avisa con un toast si hay un formulario abierto).
 

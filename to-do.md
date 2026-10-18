@@ -6,11 +6,9 @@
 
 ## Pendientes
 
-- [ ] 🔴 [funcionalidad] Ejecutar en Supabase (SQL Editor) las dos líneas `alter table public.restaurants add column if not exists place_id ...` y `... cover_url ...` de `supabase/schema.sql` (o el esquema completo, que es idempotente).
-      Justificación: sin esas columnas, guardar un restaurante elegido en Google Maps falla.
+- [ ] 🔴 [seguridad] Rotar la clave de Google Maps: crear una clave nueva en Google Cloud (mismas restricciones: sitio `https://iismael31.github.io/*` y las tres APIs), guardarla como secreto `GOOGLE_MAPS_API_KEY` en GitHub, cambiar *Settings → Pages → Source* a **GitHub Actions**, hacer push, y borrar en Google las dos claves anteriores (`AIzaSyCK...` y `AIzaSyBZ...`, que quedaron en el historial del repositorio). Cerrar las alertas de *Secret scanning* como "Revoked".
+      Justificación: las claves antiguas están en commits públicos; aunque están restringidas por dominio y cuota, lo limpio es anularlas.
 
-- [ ] 🔴 [seguridad] Ajustar cuotas en Google Cloud: Places API (New) → *GetPlaceRequest per day* = **30** (ahora pide la web: tarifa Enterprise, 1.000 gratis/mes) y *GetPhotoMediaRequest per day* = **100**.
-      Justificación: mantener el uso por debajo del gratuito con los nuevos campos.
 
 
 - [ ] 🟡 [seguridad] Borrar en Google Cloud la clave antigua `AIzaSyCK...` (suspendida y ya sustituida) en Google Maps Platform → Claves y credenciales.
@@ -37,6 +35,8 @@
       Justificación: hoy se muestra solo la etiqueta; traer metadatos requeriría un proxy o función de servidor por CORS.
 
 ## Completados
+
+- [x] 2026-10-18 — Columnas `place_id`/`cover_url` creadas en Supabase (comprobado por API) y cuotas GetPlaceRequest 30/día y GetPhotoMediaRequest 100/día ajustadas por el usuario.
 
 - [x] 2026-10-18 — Google Cloud restableció el proyecto; Google Maps reactivado (v1.2.0).
 

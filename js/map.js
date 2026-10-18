@@ -34,7 +34,7 @@ const liveMaps = new Set();
 new MutationObserver(() => liveMaps.forEach((m) => m.setOptions({ styles: stylesFor() })))
   .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-export const isMapsConfigured = typeof GOOGLE_MAPS_API_KEY === 'string' && GOOGLE_MAPS_API_KEY.length > 20;
+export const isMapsConfigured = typeof GOOGLE_MAPS_API_KEY === 'string' && /^AIza[0-9A-Za-z_-]{20,}$/.test(GOOGLE_MAPS_API_KEY);
 
 let loading = null;
 export function loadGoogleMaps() {
